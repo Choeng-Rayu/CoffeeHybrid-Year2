@@ -1,0 +1,42 @@
+{
+  "name": "coffee-backend",
+  "version": "1.0.0",
+  "description": "Coffee Ordering System Backend API",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "kill-port": "node kill-port.js",
+    "restart": "npm run kill-port && npm run dev",
+    "hosting": "node scripts/hosting-manager.js",
+    "hosting:render": "node scripts/hosting-manager.js render",
+    "hosting:railway": "node scripts/hosting-manager.js railway",
+    "hosting:local": "node scripts/hosting-manager.js local",
+    "hosting:config": "node scripts/hosting-manager.js config",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "_comment_ngrok": "ngrok scripts available but not in main workflow",
+    "dev:ngrok": "node start-ngrok-free.js",
+    "ngrok:free": "node start-ngrok-free.js",
+    "hosting:ngrok": "node scripts/hosting-manager.js ngrok",
+    "ngrok:setup": "node scripts/setup-ngrok.js setup",
+    "ngrok:start": "node scripts/setup-ngrok.js start",
+    "ngrok:stop": "node scripts/setup-ngrok.js stop",
+    "ngrok:info": "node scripts/setup-ngrok.js info",
+    "install:ngrok": "npm install -g ngrok"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-session": "^1.18.1",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.0.0",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
+    "passport-oauth2": "^1.8.0",
+    "qr-image": "^3.2.0",
+    "uuid": "^9.0.1"
+  }
+}

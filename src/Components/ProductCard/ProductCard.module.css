@@ -1,0 +1,320 @@
+/* ===== RESPONSIVE PRODUCT CARD ===== */
+.productCard {
+  background: var(--background-primary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-light);
+  overflow: hidden;
+  transition: all var(--transition-base);
+  cursor: pointer;
+  height: fit-content;
+  border: 1px solid var(--border-color);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.productCard:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-heavy);
+  border-color: var(--secondary-color);
+}
+
+.productImage {
+  position: relative;
+  height: clamp(180px, 25vw, 220px);
+  overflow: hidden;
+  background: var(--background-tertiary);
+}
+
+.productImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--transition-slow);
+  loading: lazy;
+}
+
+.productCard:hover .productImage img {
+  transform: scale(1.08);
+}
+
+.placeholderImage {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.categoryIcon {
+  font-size: clamp(3rem, 8vw, 4rem);
+  opacity: 0.7;
+  color: var(--secondary-color);
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.categoryBadge {
+  position: absolute;
+  top: var(--space-md);
+  right: var(--space-md);
+  background-color: var(--secondary-color);
+  color: var(--primary-color);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: var(--shadow-medium);
+  z-index: 2;
+}
+
+.productInfo {
+  padding: var(--space-lg);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.productName {
+  font-size: clamp(var(--text-lg), 3vw, var(--text-xl));
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.productDescription {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+.productDetails {
+  margin-top: auto;
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--border-color);
+}
+
+.priceInfo {
+  margin-bottom: var(--space-sm);
+}
+
+.price {
+  font-size: clamp(var(--text-xl), 4vw, var(--text-2xl));
+  font-weight: 800;
+  color: var(--secondary-color);
+  margin: 0;
+}
+
+.sizesInfo,
+.addOnsInfo {
+  margin-bottom: var(--space-xs);
+  font-size: var(--text-xs);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  align-items: center;
+}
+
+.sizesLabel,
+.addOnsLabel {
+  color: var(--text-secondary);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.sizes {
+  color: var(--text-primary);
+  text-transform: capitalize;
+  font-weight: 500;
+}
+
+.addOnsLabel {
+  color: var(--secondary-color);
+  font-style: normal;
+}
+
+.customizeBtn {
+  width: 100%;
+  background: var(--primary-color);
+  color: white;
+  padding: var(--space-md) var(--space-lg);
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: var(--text-sm);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  position: relative;
+  overflow: hidden;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.customizeBtn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left var(--transition-slow);
+}
+
+.customizeBtn:hover::before {
+  left: 100%;
+}
+
+.customizeBtn:hover {
+  background: var(--accent-color);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+}
+
+.customizeBtn:active {
+  transform: translateY(0);
+}
+
+.customizeBtn:disabled {
+  background: var(--text-light);
+  cursor: not-allowed;
+  transform: none;
+  opacity: 0.6;
+}
+
+.customizeBtn:disabled::before {
+  display: none;
+}
+
+/* ===== RESPONSIVE BREAKPOINTS ===== */
+@media (max-width: 768px) {
+  .productImage {
+    height: 160px;
+  }
+
+  .productInfo {
+    padding: var(--space-md);
+  }
+
+  .productName {
+    font-size: var(--text-lg);
+  }
+
+  .productDescription {
+    font-size: var(--text-xs);
+    -webkit-line-clamp: 2;
+  }
+
+  .price {
+    font-size: var(--text-xl);
+  }
+
+  .categoryBadge {
+    top: var(--space-sm);
+    right: var(--space-sm);
+    padding: var(--space-xs);
+    font-size: 0.7rem;
+  }
+
+  .customizeBtn {
+    padding: var(--space-sm) var(--space-md);
+    font-size: var(--text-xs);
+    min-height: 44px;
+  }
+}
+
+@media (max-width: 480px) {
+  .productImage {
+    height: 140px;
+  }
+
+  .productInfo {
+    padding: var(--space-sm);
+  }
+
+  .categoryIcon {
+    font-size: 2.5rem;
+  }
+
+  .sizesInfo,
+  .addOnsInfo {
+    font-size: 0.7rem;
+  }
+
+  .productName {
+    font-size: var(--text-base);
+  }
+
+  .productDescription {
+    font-size: 0.8rem;
+  }
+}
+
+/* ===== PERFORMANCE OPTIMIZATIONS ===== */
+@media (prefers-reduced-motion: reduce) {
+  .productCard,
+  .productImage img,
+  .customizeBtn,
+  .customizeBtn::before {
+    transition: none;
+  }
+
+  .productCard:hover .productImage img {
+    transform: none;
+  }
+}
+
+/* ===== ACCESSIBILITY IMPROVEMENTS ===== */
+.productCard:focus-within {
+  outline: 2px solid var(--secondary-color);
+  outline-offset: 2px;
+}
+
+.customizeBtn:focus {
+  outline: 2px solid var(--secondary-color);
+  outline-offset: 2px;
+}
+
+/* ===== LOADING STATE ===== */
+.productCard.loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.productCard.loading .productImage {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}

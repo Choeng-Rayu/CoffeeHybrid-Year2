@@ -1,0 +1,24 @@
+{
+  "name": "coffeehybrid-render-deployment",
+  "version": "1.0.0",
+  "description": "CoffeeHybrid deployment configuration for Render.com",
+  "main": "Backend/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "cd Backend && npm start",
+    "build": "npm install && cd Backend && npm install",
+    "dev": "cd Backend && npm run dev",
+    "install-backend": "cd Backend && npm install",
+    "install-frontend": "npm install",
+    "build-frontend": "npm run build",
+    "deploy": "npm run install-backend && npm run install-frontend && npm run build-frontend"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "keywords": ["coffee", "ordering", "system", "nodejs", "react", "mongodb"],
+  "author": "Choeng-Rayu",
+  "license": "MIT"
+}

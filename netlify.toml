@@ -1,0 +1,14 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "18"
+  VITE_API_URL = "https://coffeehybrid.onrender.com/api"
+  VITE_GOOGLE_CLIENT_ID = "187399692537-khqvmab549j79vm50janl6jjpfscgc9l.apps.googleusercontent.com"
+  VITE_NODE_ENV = "production"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
