@@ -1,9 +1,12 @@
 import express from 'express';
-import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import session from 'express-session';
 import passport from './config/passport.js';
+import HostingManager from './config/hosting.js';
+
+// Import Sequelize instance
+import  sequelize  from './models/index.js';  // adjust path if needed
 
 // Import routes
 import authRoutes from './routes/auth.js';
@@ -12,18 +15,13 @@ import orderRoutes from './routes/orders.js';
 import adminRoutes from './routes/admin.js';
 import googleAuthRoutes from './routes/googleAuth.js';
 
-// Import hosting configuration
-import HostingManager from './config/hosting.js';
-
 dotenv.config();
 
-// Initialize hosting manager
 const hostingManager = new HostingManager();
 
 const app = express();
 const PORT = hostingManager.config.port;
 
-// Get hosting configuration
 const hostingConfig = hostingManager.getEnvironmentInfo();
 console.log('🌐 Hosting Configuration:', hostingConfig);
 
@@ -42,29 +40,25 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Session configuration for OAuth
 app.use(session({
   secret: process.env.SESSION_SECRET || 'coffee_session_secret',
   resave: false,
   saveUninitialized: false,
   cookie: {
     secure: process.env.NODE_ENV === 'production',
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    maxAge: 24 * 60 * 60 * 1000
   }
 }));
 
-// Passport middleware
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Routes
 app.use('/api/auth', authRoutes);
-app.use('/api/auth', googleAuthRoutes); // Google OAuth routes
+app.use('/api/auth', googleAuthRoutes);
 app.use('/api/menu', menuRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/admin', adminRoutes);
 
-// Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'OK',
@@ -75,30 +69,18 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Hosting info endpoint
 app.get('/api/hosting/info', (req, res) => {
   res.json(hostingManager.getEnvironmentInfo());
 });
 
-// MongoDB connection and server startup
 const startServer = async () => {
   try {
-    // ngrok setup disabled - keeping for future use
-    // if (hostingManager.hostingType === 'ngrok' && hostingManager.config.requiresSetup) {
-    //   try {
-    //     console.log('🔧 Setting up ngrok tunnel...');
-    //     await hostingManager.setupNgrok();
-    //   } catch (error) {
-    //     console.warn('⚠️  ngrok setup failed:', error.message);
-    //     console.log('💡 Continuing with local development...');
-    //   }
-    // }
+    // Connect to SQL DB with Sequelize instead of Mongo
+    await sequelize.authenticate();
+    console.log('✅ Connected to SQL database');
+    await sequelize.sync({ alter: true });  // sync models to DB
+    console.log('✅ Sequelize models synced');
 
-    // Connect to MongoDB
-    await mongoose.connect(process.env.MONGODB_URI);
-    console.log('✅ Connected to MongoDB');
-
-    // Start server
     app.listen(PORT, () => {
       const urls = hostingManager.getServerUrls();
       console.log('\n🚀 CoffeeHybrid Server Started Successfully!');
