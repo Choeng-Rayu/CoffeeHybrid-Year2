@@ -1,3 +1,56 @@
+// const nodemailer = require('nodemailer');
+// require('dotenv').config(); // Load environment variables
+// const crypto = require('crypto'); // For token generation
+
+// // Step 1: Create transporter (using environment variables)
+// const transporter = nodemailer.createTransport({
+//   service: 'gmail',
+//   auth: {
+//     user: process.env.GMAIL_USER, // 'choengrayu307@gmail.com' loaded from .env
+//     pass: process.env.GMAIL_APP_PASSWORD // App Password loaded from .env
+//   }
+// });
+
+// // Generate a token (for example, a random string)
+// const token = crypto.randomBytes(20).toString('hex');
+
+// // Step 2: Email options
+// const mailOptions = {
+//   from: '"Choeng Rayu" <choengrayu307@gmail.com>',
+//   to: 'choengrayu233@gmail.com',
+//   subject: 'Test Email from Node.js',
+//   text: 'This is a plain text email! Your confirmation token: ' + token,
+//   html: `
+//     <b>This is HTML content!</b><br/>
+//     <a href="https://yourdomain.com/confirm?token=${token}" style="display:inline-block;padding:10px 20px;background:#4CAF50;color:#fff;text-decoration:none;border-radius:5px;">Confirm with Token</a>
+//     <p>If the button does not work, use this token: <b>${token}</b></p>
+//   `
+// };
+
+// // Step 3: Send email (async/await recommended)
+// (async () => {
+//   try {
+//     const info = await transporter.sendMail(mailOptions);
+//     console.log('Email sent:', info.response);
+//   } catch (error) {
+//     console.error('Error:', error);
+//   }
+// })();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useUser } from '../../../context/UserContext';
@@ -18,78 +71,78 @@ const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Handle Google OAuth callback
-  useEffect(() => {
-    const urlParams = new URLSearchParams(location.search);
-    const token = urlParams.get('token');
-    const userStr = urlParams.get('user');
-    const error = urlParams.get('error');
+//   // Handle Google OAuth callback
+//   useEffect(() => {
+//     const urlParams = new URLSearchParams(location.search);
+//     const token = urlParams.get('token');
+//     const userStr = urlParams.get('user');
+//     const error = urlParams.get('error');
 
-    if (error) {
-      if (error === 'oauth_not_configured') {
-        setError('Google OAuth is not configured. Please use email/password login.');
-      } else {
-        setError('Google authentication failed. Please try again.');
-      }
-      return;
-    }
+//     if (error) {
+//       if (error === 'oauth_not_configured') {
+//         setError('Google OAuth is not configured. Please use email/password login.');
+//       } else {
+//         setError('Google authentication failed. Please try again.');
+//       }
+//       return;
+//     }
 
-    if (token && userStr) {
-      try {
-        const user = JSON.parse(decodeURIComponent(userStr));
+//     if (token && userStr) {
+//       try {
+//         const user = JSON.parse(decodeURIComponent(userStr));
 
-        // Store token and user data
-        localStorage.setItem('token', token);
-        localStorage.setItem('user', JSON.stringify(user));
+//         // Store token and user data
+//         localStorage.setItem('token', token);
+//         localStorage.setItem('user', JSON.stringify(user));
 
-        // Login user
-        login(user);
+//         // Login user
+//         login(user);
 
-        // Redirect based on role
-        if (user.role === 'admin' || user.role === 'seller') {
-          navigate('/seller-dashboard');
-        } else {
-          navigate('/menu');
-        }
-      } catch (error) {
-        console.error('Error parsing user data:', error);
-        setError('Authentication error. Please try again.');
-      }
-    }
-  }, [location.search, login, navigate]);
+//         // Redirect based on role
+//         if (user.role === 'admin' || user.role === 'seller') {
+//           navigate('/seller-dashboard');
+//         } else {
+//           navigate('/menu');
+//         }
+//       } catch (error) {
+//         console.error('Error parsing user data:', error);
+//         setError('Authentication error. Please try again.');
+//       }
+//     }
+//   }, [location.search, login, navigate]);
 
-  const handleGoogleLogin = () => {
-    setIsGoogleLoading(true);
-    setError('');
+//   const handleGoogleLogin = () => {
+//     setIsGoogleLoading(true);
+//     setError('');
 
-    // Redirect to Google OAuth
-    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-    window.location.href = `${API_BASE_URL}/auth/google`;
-  };
+//     // Redirect to Google OAuth
+//     const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+//     window.location.href = `${API_BASE_URL}/auth/google`;
+//   };
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-    setError(''); // Clear error when user types
-  };
+//   const handleChange = (e) => {
+//     setFormData({
+//       ...formData,
+//       [e.target.name]: e.target.value
+//     });
+//     setError(''); // Clear error when user types
+//   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError('');
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+//     setIsLoading(true);
+//     setError('');
 
-    try {
-      const response = await authAPI.login(formData);
-      login(response.user);
-      navigate('/menu');
-    } catch (error) {
-      setError(error.response?.data?.error || 'Login failed. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+//     try {
+//       const response = await authAPI.login(formData);
+//       login(response.user);
+//       navigate('/menu');
+//     } catch (error) {
+//       setError(error.response?.data?.error || 'Login failed. Please try again.');
+//     } finally {
+//       setIsLoading(false);
+//     }
+//   };
 
   return (
     <div className={styles.loginContainer}>
