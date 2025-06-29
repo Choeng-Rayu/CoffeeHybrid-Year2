@@ -1,22 +1,19 @@
 import express from 'express';
 import Product from '../models/Product.js';
 import User from '../models/User.js';
-import { getSampleProducts } from '../data/sampleProducts.js';
+// import { getSampleProducts } from '../data/sampleProducts.js'; // re-enable for sample data
 
 const router = express.Router();
 
-// Get all menu items
+// Get all menu items (Sequelize)
 router.get('/', async (req, res) => {
   try {
     const { category } = req.query;
-
-    let filter = { available: true };
+    let where = {};
     if (category) {
-      filter.category = category;
+      where.category = category;
     }
-
-    const products = await Product.find(filter).sort({ category: 1, name: 1 });
-
+    const products = await Product.findAll({ where, order: [['category', 'ASC'], ['name', 'ASC']] });
     res.json({
       success: true,
       products
@@ -26,16 +23,14 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Get menu items by category
+// Get menu items by category (Sequelize)
 router.get('/category/:category', async (req, res) => {
   try {
     const { category } = req.params;
-
-    const products = await Product.find({
-      category: category.toLowerCase(),
-      available: true
-    }).sort({ name: 1 });
-
+    const products = await Product.findAll({
+      where: { category: category.toLowerCase() },
+      order: [['name', 'ASC']]
+    });
     res.json({
       success: true,
       category,
@@ -46,15 +41,13 @@ router.get('/category/:category', async (req, res) => {
   }
 });
 
-// Get single product
+// Get single product (Sequelize)
 router.get('/product/:id', async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id);
-
+    const product = await Product.findByPk(req.params.id);
     if (!product) {
       return res.status(404).json({ error: 'Product not found' });
     }
-
     res.json({
       success: true,
       product
@@ -64,15 +57,14 @@ router.get('/product/:id', async (req, res) => {
   }
 });
 
-// Initialize menu with sample data (for development)
+// Initialize menu with sample data (for development, Sequelize only)
 router.post('/initialize', async (req, res) => {
   try {
     // Check if products already exist
-    const existingProducts = await Product.countDocuments();
+    const existingProducts = await Product.count();
     if (existingProducts > 0) {
       return res.json({ message: 'Menu already initialized' });
     }
-
     // Create default sellers first
     const defaultSellers = [
       {
@@ -97,23 +89,16 @@ router.post('/initialize', async (req, res) => {
         shopName: 'Brew Masters'
       }
     ];
-
     const sellers = [];
     for (const sellerData of defaultSellers) {
-      const existingSeller = await User.findOne({ email: sellerData.email });
+      let existingSeller = await User.findOne({ where: { email: sellerData.email } });
       if (!existingSeller) {
-        const seller = new User(sellerData);
-        await seller.save();
-        sellers.push(seller);
-      } else {
-        sellers.push(existingSeller);
+        existingSeller = await User.create(sellerData);
       }
+      sellers.push(existingSeller);
     }
-
     const sampleProducts = getSampleProducts(sellers);
-
-    await Product.insertMany(sampleProducts);
-
+    await Product.bulkCreate(sampleProducts);
     res.json({
       success: true,
       message: 'Menu initialized with sample products',
