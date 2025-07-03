@@ -3,7 +3,6 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useUser } from '../../../context/UserContext';
 import { authAPI } from '../../../services/api';
 import styles from './Login.module.css';
-import SendingEmail from '../SendingEmail';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -159,16 +158,16 @@ const Login = () => {
           <button
             type="submit"
             className={styles.submitBtn}
-            disabled={isLoading} // use for disabling the button while loading
+            disabled={isLoading}
           >
-            {isLoading ? 'Signing In...' : 'Sign In'} // use for showing loading text or default text
+            {isLoading ? 'Signing In...' : 'Sign In'}
           </button>
         </form>
 
         <div className={styles.footer}>
           <p>
             Don't have an account?{' '}
-            <Link to="/register" className={styles.link}> // use for navigating to the registration page
+            <Link to="/register" className={styles.link}>
               Sign up here
             </Link>
           </p>

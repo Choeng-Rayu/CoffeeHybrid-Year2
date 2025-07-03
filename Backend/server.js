@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import session from 'express-session';
 import passport from './config/passport.js';
 import HostingManager from './config/hosting.js';
+import errorHandler from './middleWare/errorHandler.js';
 
 // Import Sequelize instance
 import  sequelize  from './models/index.js';  // adjust path if needed
@@ -72,6 +73,8 @@ app.get('/api/health', (req, res) => {
 app.get('/api/hosting/info', (req, res) => {
   res.json(hostingManager.getEnvironmentInfo());
 });
+
+app.use(errorHandler);
 
 const startServer = async () => {
   try {
