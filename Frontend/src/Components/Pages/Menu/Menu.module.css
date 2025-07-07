@@ -13,7 +13,7 @@
 }
 
 .title {
-  font-size: clamp(2rem, 6vw, 3rem);
+  font-size: clamp(6rem, 6vw, 3rem);
   color: var(--text-primary);
   margin-bottom: var(--space-lg);
   font-weight: 800;
@@ -48,8 +48,8 @@
   align-items: center;
   gap: var(--space-sm);
   padding: var(--space-sm) var(--space-xl);
-  border: 2px solid var(--border-color);
-  background-color: var(--background-primary);
+  border: 4px solid #721414;
+  background-color: #fff;
   border-radius: var(--radius-full);
   cursor: pointer;
   transition: all var(--transition-base);
@@ -76,7 +76,7 @@
 
 .categoryBtn:hover {
   border-color: var(--secondary-color);
-  color: var(--secondary-color);
+  color: #0f0c0c;
   transform: translateY(-2px);
   box-shadow: var(--shadow-medium);
 }
@@ -106,10 +106,10 @@
 /* ===== RESPONSIVE PRODUCTS GRID ===== */
 .productsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: var(--space-xl);
+  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); /* Increased min width for bigger cards */
+  gap: 4rem ; /* More separation between cards */
   margin-bottom: var(--space-3xl);
-  padding: var(--space-lg) 0;
+  padding: var(--space-3xl) 0; /* More vertical space */
 }
 
 /* ===== LOADING & ERROR STATES ===== */
@@ -204,8 +204,8 @@
   }
 
   .productsGrid {
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: var(--space-lg);
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
   }
 }
 
@@ -335,6 +335,6 @@
   
   .productsGrid {
     grid-template-columns: 1fr;
-    gap: 1rem;
+    gap: 2rem;
   }
 }

@@ -1,6 +1,6 @@
 /* ===== RESPONSIVE NAVBAR ===== */
 .navbar {
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+  background: linear-gradient(135deg, rgb(93, 85, 85) 100%);
   color: white;
   padding: var(--space-md) 0;
   box-shadow: var(--shadow-medium);
@@ -8,7 +8,7 @@
   top: 0;
   z-index: var(--z-sticky);
   backdrop-filter: blur(10px);
-  border-bottom: 10px solid rgba(255, 0, 0, 0.1);
+  border-bottom: 10px solid rgba(128, 15, 15, 0.1);
 }
 
 .navContainer {
@@ -19,6 +19,7 @@
   justify-content: space-between;
   align-items: center;
   position: relative;
+  height: 150px;
 }
 
 .navLogo {
@@ -34,7 +35,7 @@
 }
 
 .navLogo:hover {
-  color: #e6b885;
+  color: #3a3c37;
   transform: scale(1.05);
 }
 
@@ -43,23 +44,24 @@
   display: flex;
   align-items: center;
   gap: var(--space-xl);
+  font-size: 35px;
 }
 
-.navLink {
+.navLink, .navLogo {
+  font-size: 2rem; /* larger font size for all nav links */
   color: white;
   text-decoration: none;
-  padding: var(--space-sm) var(--space-md);
+  padding: 0.7rem 1.7rem;
   border-radius: var(--radius-md);
   transition: all var(--transition-base);
-  font-weight: 500;
+  font-weight: 600;
   position: relative;
   white-space: nowrap;
 }
 
-.navLink:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+.navLink:hover, .navLogo:hover {
+  background-color: rgba(255,255,255,0.1);
   color: var(--secondary-color);
-  transform: translateY(-1px);
 }
 
 .navLink.active {
@@ -233,8 +235,8 @@
 
 .authLinks {
   display: flex;
-  gap: var(--space-md);
   align-items: center;
+  gap: 2.5rem;
 }
 
 .loginBtn {
@@ -285,6 +287,20 @@
   background-color: var(--secondary-color);
   color: var(--primary-color);
   transform: translateY(-1px);
+}
+
+.leftMenu {
+  display: flex;
+  align-items: center;
+  gap: 2.5rem; /* more space between links */
+  font-size: 2rem; /* larger font size for all nav links */
+  margin-left: auto;
+}
+
+.logoRight {
+  display: flex;
+  align-items: center;
+  margin-right: 2rem;
 }
 
 /* ===== RESPONSIVE BREAKPOINTS ===== */
@@ -372,5 +388,69 @@
     flex-wrap: wrap;
     justify-content: center;
     gap: 1rem;
+  }
+}
+
+.menuToggle {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 2.5rem;
+  color: var(--secondary-color);
+  cursor: pointer;
+  z-index: var(--z-modal);
+  margin: 0 1rem;
+}
+
+.dotsIcon {
+  font-size: 2.5rem;
+  line-height: 1;
+  color: var(--secondary-color);
+  font-family: inherit;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 900px) {
+  .menuToggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .leftMenu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: rgb(93, 85, 85);
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 1.5rem;
+    padding: 2rem 2.5rem;
+    border-radius: 0 0 0.75rem 0.75rem;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    min-width: 220px;
+    display: none;
+  }
+  .leftMenu.open {
+    display: flex;
+  }
+  .menuToggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .logoRight {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+  }
+}
+
+@media (max-width: 900px) {
+  .navContainer {
+    justify-content: center;
   }
 }
