@@ -3,6 +3,7 @@ import { useUser } from '../../context/UserContext';
 import { useCart } from '../../context/CartContext';
 import { useState } from 'react';
 import styles from './Navbar.module.css';
+import { FaHome, FaCoffee, FaShoppingCart, FaClipboardList, FaUserShield, FaSignInAlt, FaUserPlus, FaStore } from 'react-icons/fa';
 
 const Navbar = () => {
   const { user, logout, isAuthenticated } = useUser();
@@ -30,24 +31,24 @@ const Navbar = () => {
           className={styles.leftMenu + ' ' + (menuOpen ? styles.open : '')}
         >
           <Link to="/" className={styles.navLink} onClick={() => setMenuOpen(false)}>
-            Home
+            <FaHome title="Home" />
           </Link>
           <Link to="/menu" className={styles.navLink} onClick={() => setMenuOpen(false)}>
-            Menu
+            <FaCoffee title="Menu" />
           </Link>
           {isAuthenticated ? (
             <>
               {(user.role === 'seller' || user.role === 'admin') ? (
                 <Link to="/admin/dashboard" className={styles.navLink} onClick={() => setMenuOpen(false)}>
-                  Seller Dashboard
+                  <FaUserShield title="Seller Dashboard" />
                 </Link>
               ) : (
                 <>
                   <Link to="/cart" className={styles.navLink} onClick={() => setMenuOpen(false)}>
-                    Cart ({getCartItemCount()})
+                    <FaShoppingCart title="Cart" />
                   </Link>
                   <Link to="/orders" className={styles.navLink} onClick={() => setMenuOpen(false)}>
-                    Orders
+                    <FaClipboardList title="Orders" />
                   </Link>
                 </>
               )}
@@ -69,13 +70,13 @@ const Navbar = () => {
           ) : (
             <div className={styles.authLinks}>
               <Link to="/login" className={styles.navLink} onClick={() => setMenuOpen(false)}>
-                Login
+                <FaSignInAlt title="Login" />
               </Link>
               <Link to="/register" className={styles.navLink} onClick={() => setMenuOpen(false)}>
-                Register
+                <FaUserPlus title="Register" />
               </Link>
               <Link to="/admin/login" className={styles.navLink} onClick={() => setMenuOpen(false)}>
-                Seller Portal
+                <FaStore title="Seller Portal" />
               </Link>
             </div>
           )}
