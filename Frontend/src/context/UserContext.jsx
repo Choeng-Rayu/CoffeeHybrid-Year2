@@ -36,7 +36,8 @@ export const UserProvider = ({ children }) => {
   const logout = () => {
     setUser(null);
     localStorage.removeItem('coffeeUser');
-    localStorage.removeItem('coffeeCart'); // Clear cart on logout
+    // Keep cart persistent across sessions - don't clear on logout
+    // localStorage.removeItem('coffeeCart');
   };
 
   const updateUser = (updatedData) => {

@@ -15,7 +15,7 @@ export async function handleAddToCart(ctx) {
 
   try {
     const cartItem = {
-      productId: session.currentProduct._id,
+      productId: session.currentProduct.id || session.currentProduct._id,
       name: session.currentProduct.name,
       shopName: session.currentProduct.shopName,
       ...session.customization,

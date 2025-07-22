@@ -50,7 +50,8 @@ export default (sequelize, DataTypes) => {
     },
     preparationTime: {
       type: DataTypes.INTEGER,
-      defaultValue: 5 // minutes
+      defaultValue: 5,
+      comment: 'Preparation time in minutes'
     },
     featured: {
       type: DataTypes.BOOLEAN,

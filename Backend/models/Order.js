@@ -2,19 +2,58 @@ export default (sequelize, DataTypes) => {
   const Order = sequelize.define('Order', {
     userId: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: false,
+      references: {
+        model: 'Users',
+        key: 'id'
+      }
     },
-    totalPrice: {
+    total: {
       type: DataTypes.FLOAT,
-      allowNull: false
+      allowNull: false,
+      validate: { min: 0 }
     },
     status: {
-      type: DataTypes.ENUM('pending', 'completed', 'cancelled'),
+      type: DataTypes.ENUM('pending', 'completed', 'no-show', 'cancelled'),
       defaultValue: 'pending'
+    },
+    qrToken: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true
+    },
+    orderSource: {
+      type: DataTypes.ENUM('web', 'telegram'),
+      allowNull: false
+    },
+    customerInfo: {
+      type: DataTypes.JSON,
+      allowNull: true,
+      comment: 'Stores name, phone, telegramUsername'
+    },
+    pickupTime: {
+      type: DataTypes.DATE,
+      allowNull: true
+    },
+    expiresAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: () => new Date(Date.now() + 30 * 60 * 1000) // 30 minutes from now
     }
   }, {
     timestamps: true,
-    tableName: 'orders'
+    tableName: 'orders',
+    indexes: [
+      {
+        fields: ['expiresAt'],
+        name: 'orders_expires_at_index'
+      },
+      {
+        fields: ['qrToken'],
+        unique: true,
+        name: 'orders_qr_token_unique'
+      }
+    ]
   });
 
   Order.associate = (models) => {

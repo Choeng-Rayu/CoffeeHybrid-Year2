@@ -69,7 +69,7 @@ const Cart = () => {
 
       const response = await ordersAPI.createOrder(orderData);
       setOrderConfirmation(response.order);
-      clearCart();
+      await clearCart(user?.id);
     } catch (error) {
       setError(error.response?.data?.error || 'Failed to place order. Please try again.');
     } finally {

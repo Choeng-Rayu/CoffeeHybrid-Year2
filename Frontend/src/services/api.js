@@ -134,6 +134,41 @@ export const ordersAPI = {
   }
 };
 
+// Cart API calls
+export const cartAPI = {
+  addToCart: async (cartItemData) => {
+    const response = await api.post('/cart', cartItemData);
+    return response.data;
+  },
+
+  getCart: async (sessionId, userId = null) => {
+    const params = userId ? { userId } : {};
+    const response = await api.get(`/cart/${sessionId}`, { params });
+    return response.data;
+  },
+
+  updateCartItem: async (cartItemId, updateData) => {
+    const response = await api.put(`/cart/${cartItemId}`, updateData);
+    return response.data;
+  },
+
+  removeFromCart: async (cartItemId) => {
+    const response = await api.delete(`/cart/${cartItemId}`);
+    return response.data;
+  },
+
+  clearCart: async (sessionId, userId = null) => {
+    const params = userId ? { userId } : {};
+    const response = await api.delete(`/cart/clear/${sessionId}`, { params });
+    return response.data;
+  },
+
+  syncCart: async (syncData) => {
+    const response = await api.post('/cart/sync', syncData);
+    return response.data;
+  }
+};
+
 // Admin/Seller API calls
 export const adminAPI = {
   registerSeller: async (sellerData) => {

@@ -56,8 +56,8 @@ export async function handleMyOrders(ctx) {
     message += 'Select an order number to view details, or use the menu below:';
 
     // Create buttons for recent orders
-    const orderButtons = orders.slice(0, 3).map((order, index) => 
-      [`📋 Order #${order._id.slice(-8)}`]
+    const orderButtons = orders.slice(0, 3).map((order, index) =>
+      [`📋 Order #${(order.id || order._id)?.toString().slice(-8) || 'N/A'}`]
     );
 
     const buttons = [
@@ -162,9 +162,9 @@ export async function handleOrderDetails(ctx) {
     await ctx.reply(message, Markup.keyboard(buttons).resize());
 
   } catch (error) {
-    logError('ORDER_DETAILS', error, { 
-      userId: ctx.from.id, 
-      orderId: order._id 
+    logError('ORDER_DETAILS', error, {
+      userId: ctx.from.id,
+      orderId: order.id || order._id
     });
     await ctx.reply('Error loading order details. Please try again.');
   }
@@ -189,7 +189,7 @@ export async function handleShowQRCode(ctx) {
     const qr = await import('qr-image');
     const qrBuffer = qr.default.imageSync(order.qrToken, { type: 'png', size: 10 });
 
-    let caption = `📱 QR Code for Order #${order._id.slice(-8)}\n\n`;
+    let caption = `📱 QR Code for Order #${(order.id || order._id)?.toString().slice(-8) || 'N/A'}\n\n`;
     caption += `💰 Total: ${formatPrice(order.total)}\n`;
     
     if (order.expiresAt) {
@@ -209,9 +209,9 @@ export async function handleShowQRCode(ctx) {
     );
 
   } catch (error) {
-    logError('SHOW_QR_CODE', error, { 
-      userId: ctx.from.id, 
-      orderId: order._id 
+    logError('SHOW_QR_CODE', error, {
+      userId: ctx.from.id,
+      orderId: order.id || order._id
     });
     await ctx.reply('Error generating QR code. Please try again.');
   }

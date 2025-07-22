@@ -47,7 +47,7 @@ const OrderConfirmation = ({ order, onClose }) => {
   };
 
   const handleViewOrders = () => {
-    navigate('/orders');
+    navigate('/order-history');
     if (onClose) onClose();
   };
 
@@ -124,7 +124,7 @@ const OrderConfirmation = ({ order, onClose }) => {
         <div className={styles.orderItems}>
           <h3>Order Items</h3>
           <div className={styles.itemsList}>
-            {order.items.map((item, index) => (
+            {(order.items || []).map((item, index) => (
               <div key={index} className={styles.orderItem}>
                 <div className={styles.itemDetails}>
                   <h4 className={styles.itemName}>{item.name}</h4>
@@ -134,9 +134,9 @@ const OrderConfirmation = ({ order, onClose }) => {
                     {item.iceLevel !== 'medium' && (
                       <span>Ice: {item.iceLevel}</span>
                     )}
-                    {item.addOns.length > 0 && (
+                    {(item.addOns || []).length > 0 && (
                       <span>
-                        Add-ons: {item.addOns.map(addOn => addOn.name).join(', ')}
+                        Add-ons: {(item.addOns || []).map(addOn => addOn.name).join(', ')}
                       </span>
                     )}
                   </div>

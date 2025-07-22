@@ -129,10 +129,10 @@ const OrderHistory = () => {
       ) : (
         <div className={styles.ordersList}>
           {orders.map(order => (
-            <div key={order._id} className={styles.orderCard}>
+            <div key={order.id || order._id} className={styles.orderCard}>
               <div className={styles.orderHeader}>
                 <div className={styles.orderInfo}>
-                  <h3 className={styles.orderId}>Order #{order._id.slice(-8)}</h3>
+                  <h3 className={styles.orderId}>Order #{(order.id || order._id)?.toString().slice(-8) || 'N/A'}</h3>
                   <p className={styles.orderDate}>{formatDate(order.createdAt)}</p>
                 </div>
                 <div className={styles.orderStatus}>
@@ -147,14 +147,14 @@ const OrderHistory = () => {
               </div>
 
               <div className={styles.orderItems}>
-                {order.items.map((item, index) => (
+                {(order.items || []).map((item, index) => (
                   <div key={index} className={styles.orderItem}>
                     <span className={styles.itemName}>
                       {item.quantity}× {item.name}
                     </span>
                     <span className={styles.itemDetails}>
                       {item.size} | {item.sugarLevel} sugar
-                      {item.addOns.length > 0 && ` | +${item.addOns.length} add-ons`}
+                      {(item.addOns || []).length > 0 && ` | +${(item.addOns || []).length} add-ons`}
                     </span>
                   </div>
                 ))}
