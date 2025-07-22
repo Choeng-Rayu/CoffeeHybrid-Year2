@@ -1,7 +1,5 @@
 {
   "dependencies": {
-    "bcrypt": "^6.0.0",
-    "crypto": "^1.0.1",
-    "nodemailer": "^7.0.5"
+    "bcrypt": "^6.0.0"
   }
 }
