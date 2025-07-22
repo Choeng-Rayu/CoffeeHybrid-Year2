@@ -67,6 +67,16 @@ export const authAPI = {
   verifyGoogleToken: async (googleToken) => {
     const response = await api.post('/auth/google/verify', { googleToken });
     return response.data;
+  },
+
+  forgotPassword: async (emailData) => {
+    const response = await api.post('/auth/forgot-password', emailData);
+    return response.data;
+  },
+
+  resetPassword: async (resetData) => {
+    const response = await api.post('/auth/reset-password', resetData);
+    return response.data;
   }
 };
 

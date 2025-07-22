@@ -155,6 +155,12 @@ const Login = () => {
             />
           </div>
 
+          <div className={styles.forgotPasswordLink}>
+            <Link to="/forgot-password" className={styles.forgotLink}>
+              Forgot your password?
+            </Link>
+          </div>
+
           <button
             type="submit"
             className={styles.submitBtn}

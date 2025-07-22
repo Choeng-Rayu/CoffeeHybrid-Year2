@@ -7,6 +7,8 @@ import Navbar from './Components/Navbar/Navbar';
 import Home from './Components/Pages/Home/Home';
 import Login from './Components/Auth/Login/Login';
 import Register from './Components/Auth/Register/Register';
+import ForgotPassword from './Components/Auth/ForgotPassword/ForgotPassword';
+import ResetPassword from './Components/Auth/ResetPassword/ResetPassword';
 import OAuthCallback from './Components/Auth/OAuthCallback';
 import Menu from './Components/Pages/Menu/Menu';
 import Cart from './Components/Pages/Cart/Cart';
@@ -32,6 +34,8 @@ function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/auth/callback" element={<OAuthCallback />} />
                 <Route path="/menu" element={<Menu />} />
                 <Route path="/cart" element={<Cart />} />

@@ -5,6 +5,7 @@ import session from 'express-session';
 import passport from './config/passport.js';
 import HostingManager from './config/hosting.js';
 import errorHandler from './middleWare/errorHandler.js';
+import { activityLogger, authLogger, systemLogger } from './middleWare/activityLogger.js';
 
 // Import Sequelize instance
 import  sequelize  from './models/index.js';  // adjust path if needed
@@ -41,6 +42,9 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// Add activity logging middleware
+app.use(activityLogger);
+
 app.use(session({
   secret: process.env.SESSION_SECRET || 'coffee_session_secret',
   resave: false,
@@ -54,6 +58,8 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Add auth-specific logging for auth routes
+app.use('/api/auth', authLogger);
 app.use('/api/auth', authRoutes);
 app.use('/api/auth', googleAuthRoutes);
 app.use('/api/menu', menuRoutes);
@@ -78,11 +84,21 @@ app.use(errorHandler);
 
 const startServer = async () => {
   try {
+    // Log server startup
+    systemLogger.logEvent('SERVER_STARTUP', {
+      port: PORT,
+      environment: process.env.NODE_ENV || 'development',
+      hostingType: hostingManager.hostingType
+    });
+
     // Connect to SQL DB with Sequelize instead of Mongo
     await sequelize.authenticate();
     console.log('✅ Connected to SQL database');
-    await sequelize.sync({ alter: true });  // sync models to DB
+    systemLogger.logEvent('DATABASE_CONNECTED', { type: 'SQL', status: 'success' });
+
+    await sequelize.sync({ force: false });  // sync models to DB
     console.log('✅ Sequelize models synced');
+    systemLogger.logEvent('DATABASE_SYNCED', { status: 'success' });
 
     app.listen(PORT, () => {
       const urls = hostingManager.getServerUrls();
@@ -103,9 +119,19 @@ const startServer = async () => {
 
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       console.log('☕ Ready to serve coffee orders! ☕');
+
+      systemLogger.logEvent('SERVER_READY', {
+        port: PORT,
+        urls: urls,
+        environment: process.env.NODE_ENV || 'development'
+      });
     });
   } catch (error) {
     console.error('❌ Failed to start server:', error);
+    systemLogger.logEvent('SERVER_STARTUP_FAILED', {
+      error: error.message,
+      stack: error.stack
+    });
     process.exit(1);
   }
 };
