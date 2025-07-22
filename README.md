@@ -182,7 +182,7 @@ help - Get help and instructions
 ## 🔒 Security Notes
 
 - **No Password Encryption**: As per requirements, passwords are stored in plain text
-- **No JWT Tokens**: Simple session-based authentication
+- **JWT Tokens & cookie**: Simple session-based authentication
 - **QR Token Security**: UUID-based tokens with expiration
 - **Input Validation**: Basic validation on all inputs
 
