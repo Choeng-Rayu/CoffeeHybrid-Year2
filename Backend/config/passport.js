@@ -44,7 +44,7 @@ if (isGoogleConfigured()) {
     });
 
     // Check if user already exists with this Google ID
-    let user = await User.findOne({ googleId: profile.id });
+    let user = await User.findOne({ where: { googleId: profile.id } });
 
     if (user) {
       console.log('✅ Existing Google user found:', user.email);
@@ -54,21 +54,21 @@ if (isGoogleConfigured()) {
     // Check if user exists with the same email
     const email = profile.emails?.[0]?.value;
     if (email) {
-      user = await User.findOne({ email: email });
-      
+      user = await User.findOne({ where: { email: email } });
+
       if (user) {
         // Link Google account to existing user
         user.googleId = profile.id;
         user.avatar = profile.photos?.[0]?.value;
         await user.save();
-        
+
         console.log('🔗 Linked Google account to existing user:', user.email);
         return done(null, user);
       }
     }
 
     // Create new user
-    const newUser = new User({
+    const newUser = await User.create({
       googleId: profile.id,
       username: profile.emails?.[0]?.value?.split('@')[0] || `user_${profile.id}`,
       email: profile.emails?.[0]?.value,
@@ -77,11 +77,8 @@ if (isGoogleConfigured()) {
       avatar: profile.photos?.[0]?.value,
       role: 'customer',
       isEmailVerified: true, // Google emails are pre-verified
-      authProvider: 'google',
-      createdAt: new Date()
+      authProvider: 'google'
     });
-
-    await newUser.save();
     console.log('✅ New Google user created:', newUser.email);
     
     return done(null, newUser);
@@ -94,13 +91,13 @@ if (isGoogleConfigured()) {
 
 // Serialize user for session
 passport.serializeUser((user, done) => {
-  done(null, user._id);
+  done(null, user.id);
 });
 
 // Deserialize user from session
 passport.deserializeUser(async (id, done) => {
   try {
-    const user = await User.findById(id);
+    const user = await User.findByPk(id);
     done(null, user);
   } catch (error) {
     done(error, null);

@@ -6,6 +6,9 @@ import passport from './config/passport.js';
 import HostingManager from './config/hosting.js';
 import errorHandler from './middleWare/errorHandler.js';
 import { activityLogger, authLogger, systemLogger } from './middleWare/activityLogger.js';
+import swaggerJSDoc from 'swagger-jsdoc';
+import swaggerUi from 'swagger-ui-express';
+import swaggerOptions from './config/swagger.js';
 
 // Import Sequelize instance
 import  sequelize  from './models/index.js';  // adjust path if needed
@@ -58,6 +61,14 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Initialize Swagger
+const specs = swaggerJSDoc(swaggerOptions);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
+  explorer: true,
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: "Coffee Hybrid API Documentation"
+}));
+
 // Add auth-specific logging for auth routes
 app.use('/api/auth', authLogger);
 app.use('/api/auth', authRoutes);
@@ -79,6 +90,10 @@ app.get('/api/health', (req, res) => {
 app.get('/api/hosting/info', (req, res) => {
   res.json(hostingManager.getEnvironmentInfo());
 });
+
+// Swagger API Documentation
+const swaggerSpec = swaggerJSDoc(swaggerOptions);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use(errorHandler);
 

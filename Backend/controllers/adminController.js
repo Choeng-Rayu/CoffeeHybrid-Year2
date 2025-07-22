@@ -2,6 +2,79 @@
 import { User, Product, Order } from '../models/index.js';
 import { Op } from 'sequelize';
 
+/**
+ * @swagger
+ * /admin/register-seller:
+ *   post:
+ *     summary: Register a new seller
+ *     tags: [Admin]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               shopName:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Seller registered successfully
+ *       400:
+ *         description: User with this email or username already exists
+ */
+
+/**
+ * @swagger
+ * /admin/add-product:
+ *   post:
+ *     summary: Add a new product
+ *     tags: [Admin]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               category:
+ *                 type: string
+ *               basePrice:
+ *                 type: number
+ *               image:
+ *                 type: string
+ *               sizes:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     name:
+ *                       type: string
+ *                     priceModifier:
+ *                       type: number
+ *               addOns:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               preparationTime:
+ *                 type: number
+ *               featured:
+ *                 type: boolean
+ *     responses:
+ *       201:
+ *         description: Product added successfully
+ */
+
 export const registerSeller = async (req, res, next) => {
   try {
     const { username, email, password, shopName } = req.body;

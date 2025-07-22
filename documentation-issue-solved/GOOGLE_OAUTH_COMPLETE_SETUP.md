@@ -17,7 +17,7 @@ Set these in **Render Dashboard** > **Environment**:
 # Google OAuth Configuration
 GOOGLE_CLIENT_ID=187399692537-khqvmab549j79vm50janl6jjpfscgc9l.apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET=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
-GOOGLE_CALLBACK_URL=https://coffeehybrid.onrender.com/api/auth/google/callback
+GOOGLE_CALLBACK_URL=http://localhost:5000/api/auth/google/callback  # Corrected to use port 5000 instead of 4000
 
 # Frontend URLs for CORS
 CLIENT_URL=https://hybridcoffee.netlify.app
@@ -122,7 +122,7 @@ OAuth Callback: https://coffeehybrid.onrender.com/api/auth/google/callback
 ### **GOOGLE_CALLBACK_URL**
 - **What**: Where Google sends users after OAuth
 - **Used by**: Backend OAuth configuration
-- **Value**: `https://coffeehybrid.onrender.com/api/auth/google/callback`
+- **Value**: `http://localhost:5000/api/auth/google/callback`
 
 ### **GOOGLE_CLOUD_RUN_URL**
 - **What**: Google Cloud Run service URL

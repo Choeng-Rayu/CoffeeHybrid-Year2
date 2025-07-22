@@ -1,44 +1,26 @@
 export default (sequelize, DataTypes) => {
-  const OrderItem = sequelize.define('OrderItem', {
-    name: {
-      type: DataTypes.STRING,
+  const Order = sequelize.define('Order', {
+    userId: {
+      type: DataTypes.INTEGER,
       allowNull: false
     },
-    size: {
-      type: DataTypes.ENUM('small', 'medium', 'large'),
-      defaultValue: 'medium'
-    },
-    sugarLevel: {
-      type: DataTypes.ENUM('none', 'low', 'medium', 'high'),
-      defaultValue: 'medium'
-    },
-    iceLevel: {
-      type: DataTypes.ENUM('none', 'low', 'medium', 'high'),
-      defaultValue: 'medium'
-    },
-    addOns: {
-      type: DataTypes.JSON, // store add-ons array as JSON [{name, price}]
-      allowNull: true
-    },
-    price: {
+    totalPrice: {
       type: DataTypes.FLOAT,
-      allowNull: false,
-      validate: { min: 0 }
+      allowNull: false
     },
-    quantity: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      defaultValue: 1,
-      validate: { min: 1 }
+    status: {
+      type: DataTypes.ENUM('pending', 'completed', 'cancelled'),
+      defaultValue: 'pending'
     }
   }, {
-    timestamps: false,
-    tableName: 'order_items'
+    timestamps: true,
+    tableName: 'orders'
   });
 
-  OrderItem.associate = (models) => {
-    OrderItem.belongsTo(models.Order, { foreignKey: 'orderId', as: 'order' });
+  Order.associate = (models) => {
+    Order.belongsTo(models.User, { foreignKey: 'userId', as: 'user' });
+    Order.hasMany(models.OrderItem, { foreignKey: 'orderId', as: 'items' });
   };
 
-  return OrderItem;
+  return Order;
 };

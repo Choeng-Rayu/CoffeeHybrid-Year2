@@ -3,6 +3,57 @@ import { Order, User, Product } from '../models/index.js';
 import { v4 as uuidv4 } from 'uuid';
 import qr from 'qr-image';
 
+/**
+ * @swagger
+ * /orders:
+ *   post:
+ *     summary: Create a new order
+ *     tags: [Orders]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               userId:
+ *                 type: string
+ *               items:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     productId:
+ *                       type: string
+ *                     size:
+ *                       type: string
+ *                     addOns:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           name:
+ *                             type: string
+ *                     quantity:
+ *                       type: number
+ *               orderSource:
+ *                 type: string
+ *               customerInfo:
+ *                 type: object
+ *                 properties:
+ *                   name:
+ *                     type: string
+ *                   phone:
+ *                     type: string
+ *     responses:
+ *       201:
+ *         description: Order created successfully
+ *       404:
+ *         description: User or product not found
+ *       403:
+ *         description: Account is blocked
+ */
+
 export const createOrder = async (req, res, next) => {
   try {
     const { userId, items, orderSource, customerInfo } = req.body;

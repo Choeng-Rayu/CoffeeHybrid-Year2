@@ -101,11 +101,11 @@ class HostingDetector {
       case 'ngrok':
         // ngrok tunnel - disabled, fallback to local
         console.log('ℹ️ ngrok detection disabled, using local development');
-        return 'http://localhost:4000';
+        return 'http://localhost:5000';
 
       case 'local':
         // Local development
-        return 'http://localhost:4000';
+        return 'http://localhost:5000';
         
       default:
         // Custom domain - assume API is on same domain with /api path

@@ -1,41 +1,42 @@
-// const nodemailer = require('nodemailer');
-// require('dotenv').config(); // Load environment variables
-// const crypto = require('crypto'); // For token generation
+import nodemailer from 'nodemailer';
+import crypto from 'crypto';
+import dotenv from 'dotenv';
 
-// // Step 1: Create transporter (using environment variables)
-// const transporter = nodemailer.createTransport({
-//   service: 'gmail',
-//   auth: {
-//     user: process.env.GMAIL_USER, // 'choengrayu307@gmail.com' loaded from .env
-//     pass: process.env.GMAIL_APP_PASSWORD // App Password loaded from .env
-//   }
-// });
+dotenv.config();
 
-// // Generate a token (for example, a random string)
-// const token = crypto.randomBytes(20).toString('hex');
+export async function sendConfirmationEmail(to) {
+  // Create transporter
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.GMAIL_USER,
+      pass: process.env.GMAIL_APP_PASSWORD
+    }
+  });
 
-// // Step 2: Email options
-// const mailOptions = {
-//   from: '"Choeng Rayu" <choengrayu307@gmail.com>',
-//   to: 'choengrayu233@gmail.com',
-//   subject: 'Test Email from Node.js',
-//   text: 'This is a plain text email! Your confirmation token: ' + token,
-//   html: `
-//     <b>This is HTML content!</b><br/>
-//     <a href="https://yourdomain.com/confirm?token=${token}" style="display:inline-block;padding:10px 20px;background:#4CAF50;color:#fff;text-decoration:none;border-radius:5px;">Confirm with Token</a>
-//     <p>If the button does not work, use this token: <b>${token}</b></p>
-//   `
-// };
+  // Generate token
+  const token = crypto.randomBytes(20).toString('hex');
 
-// // Step 3: Send email (async/await recommended)
-// (async () => {
-//   try {
-//     const info = await transporter.sendMail(mailOptions);
-//     console.log('Email sent:', info.response);
-//   } catch (error) {
-//     console.error('Error:', error);
-//   }
-// })();
+  // Email options
+  const mailOptions = {
+    from: '"Choeng Rayu" <choengrayu307@gmail.com>',
+    to,
+    subject: 'Test Email from Node.js',
+    text: 'This is a plain text email! Your confirmation token: ' + token,
+    html: `
+      <b>This is HTML content!</b><br/>
+      <a href="http://localhost:3000/confirm?token=${token}" style="display:inline-block;padding:10px 20px;background:#4CAF50;color:#fff;text-decoration:none;border-radius:5px;">Confirm with Token</a>
+      <p>If the button does not work, use this token: <b>${token}</b></p>
+    `
+  };
+
+  // Send email
+  await transporter.sendMail(mailOptions);
+  return token;
+}
+
+
+
 
 
 

@@ -140,3 +140,25 @@ export const googleStatus = (req, res) => {
       : 'Please set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in your .env file'
   });
 };
+
+/**
+ * @swagger
+ * /auth/google:
+ *   get:
+ *     summary: Initiate Google OAuth
+ *     tags: [GoogleAuth]
+ *     responses:
+ *       302:
+ *         description: Redirects to Google OAuth
+ */
+
+/**
+ * @swagger
+ * /auth/google/callback:
+ *   get:
+ *     summary: Handle Google OAuth callback
+ *     tags: [GoogleAuth]
+ *     responses:
+ *       302:
+ *         description: Redirects to frontend with authentication result
+ */

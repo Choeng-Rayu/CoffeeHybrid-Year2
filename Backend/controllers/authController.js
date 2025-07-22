@@ -4,6 +4,58 @@ import { Op } from 'sequelize';
 import crypto from 'crypto';
 import { sendPasswordResetEmail } from '../services/emailService.js';
 
+/**
+ * @swagger
+ * /auth/register:
+ *   post:
+ *     summary: Register a new user
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: User registered successfully
+ *       400:
+ *         description: User with this email or username already exists
+ */
+
+/**
+ * @swagger
+ * /auth/login:
+ *   post:
+ *     summary: Login a user
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               emailOrUsername:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Login successful
+ *       401:
+ *         description: Invalid credentials
+ *       403:
+ *         description: Account is temporarily blocked
+ */
+
 export const register = async (req, res, next) => {
   try {
     const { username, email, password } = req.body;
@@ -118,7 +170,7 @@ export const forgotPassword = async (req, res, next) => {
     });
   } catch (error) {
     console.error('Forgot password error:', error);
-    next(error);
+    return res.status(500).json({ error: error.message || 'Internal server error' });
   }
 };
 

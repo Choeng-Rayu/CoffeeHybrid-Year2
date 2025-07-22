@@ -3,15 +3,21 @@ import { useUser } from '../../context/UserContext';
 import { useCart } from '../../context/CartContext';
 import styles from './Navbar.module.css';
 import { FaHome, FaCoffee, FaShoppingCart, FaClipboardList, FaUserShield, FaSignInAlt, FaUserPlus, FaStore } from 'react-icons/fa';
+import { useState } from 'react';
 
 const Navbar = () => {
   const { user, logout, isAuthenticated } = useUser();
   const { getCartItemCount } = useCart();
   const navigate = useNavigate();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
     navigate('/');
+  };
+
+  const handleMenuToggle = () => {
+    setMenuOpen((prevState) => !prevState);
   };
 
   return (

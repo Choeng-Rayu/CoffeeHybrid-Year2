@@ -1,6 +1,61 @@
 // Controller for menu-related logic
 import { Product, User } from '../models/index.js';
 
+/**
+ * @swagger
+ * /menu:
+ *   get:
+ *     summary: Get all products
+ *     tags: [Menu]
+ *     parameters:
+ *       - in: query
+ *         name: category
+ *         schema:
+ *           type: string
+ *         description: Filter products by category
+ *     responses:
+ *       200:
+ *         description: List of products
+ */
+
+/**
+ * @swagger
+ * /menu/{category}:
+ *   get:
+ *     summary: Get products by category
+ *     tags: [Menu]
+ *     parameters:
+ *       - in: path
+ *         name: category
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Category name
+ *     responses:
+ *       200:
+ *         description: List of products in the category
+ */
+
+/**
+ * @swagger
+ * /menu/product/{id}:
+ *   get:
+ *     summary: Get product by ID
+ *     tags: [Menu]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Product ID
+ *     responses:
+ *       200:
+ *         description: Product details
+ *       404:
+ *         description: Product not found
+ */
+
 export const getAllProducts = async (req, res, next) => {
   try {
     const { category } = req.query;

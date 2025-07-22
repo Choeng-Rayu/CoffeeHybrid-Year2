@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import UserModel from "./User.js";
 import ProductModel from "./Product.js";
 import OrderModel from "./Order.js";
+import OrderItemModel from "./OrderItem.js";
 dotenv.config();
 
 const sequelize = new Sequelize(
@@ -19,10 +20,17 @@ const sequelize = new Sequelize(
 const User = UserModel(sequelize, Sequelize.DataTypes);
 const Product = ProductModel(sequelize, Sequelize.DataTypes);
 const Order = OrderModel(sequelize, Sequelize.DataTypes);
+const OrderItem = OrderItemModel(sequelize, Sequelize.DataTypes);
 
 // Set up associations
-Order.belongsTo(sequelize.models.User, { foreignKey: 'userId', as: 'user' });
-Order.hasMany(sequelize.models.OrderItem, { foreignKey: 'orderId', as: 'items' });
+User.hasMany(Order, { foreignKey: 'userId', as: 'orders' });
+Order.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 
-export { sequelize, User, Product, Order };
+Product.hasMany(OrderItem, { foreignKey: 'productId', as: 'orderItems' });
+OrderItem.belongsTo(Product, { foreignKey: 'productId', as: 'product' });
+
+Order.hasMany(OrderItem, { foreignKey: 'orderId', as: 'items' });
+OrderItem.belongsTo(Order, { foreignKey: 'orderId', as: 'order' });
+
+export { sequelize, User, Product, Order, OrderItem };
 export default sequelize;

@@ -6,68 +6,30 @@ dotenv.config();
 
 // Create transporter using Gmail with multiple fallback configurations
 const createTransporter = async () => {
-  const configurations = [
-    {
-      name: 'Gmail SMTP (587)',
-      host: 'smtp.gmail.com',
-      port: 587,
-      secure: false,
-      auth: {
-        user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_APP_PASSWORD?.replace(/\s/g, '')
-      },
-      tls: {
-        rejectUnauthorized: false
-      }
-    },
-    {
-      name: 'Gmail SMTP (465)',
-      host: 'smtp.gmail.com',
-      port: 465,
-      secure: true,
-      auth: {
-        user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_APP_PASSWORD?.replace(/\s/g, '')
-      },
-      tls: {
-        rejectUnauthorized: false
-      }
-    },
-    {
-      name: 'Gmail Service',
-      service: 'gmail',
-      auth: {
-        user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_APP_PASSWORD?.replace(/\s/g, '')
-      }
+  const rawPass = process.env.GMAIL_APP_PASSWORD || '';
+  const trimmedPass = rawPass.replace(/\s/g, '');
+  console.log('🔍 Raw GMAIL_APP_PASSWORD:', rawPass);
+  console.log('🔑 Trimmed GMAIL_APP_PASSWORD length:', trimmedPass.length);
+  // Create a Gmail transporter
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.GMAIL_USER,
+      pass: trimmedPass
     }
-  ];
-
-  for (const config of configurations) {
-    try {
-      console.log(`🔄 Trying ${config.name}...`);
-      const transporter = nodemailer.createTransport(config);
-
-      // Test the connection
-      await transporter.verify();
-      console.log(`✅ ${config.name} connection successful!`);
-      return transporter;
-    } catch (error) {
-      console.log(`❌ ${config.name} failed:`, error.message);
-      continue;
-    }
-  }
-
-  throw new Error('All email configurations failed. Please check your network connection and email credentials.');
+  });
+  // Verify connection
+  await transporter.verify();
+  console.log('✅ Gmail transporter verified');
+  return transporter;
 };
 
 // Send password reset email
 export const sendPasswordResetEmail = async (email, resetToken, userName) => {
-  // Check if we're in development mode and SMTP is not available
-  const isDevelopment = process.env.NODE_ENV === 'development';
+  // Check if we're explicitly mocking email send (mock only when MOCK_EMAIL=true)
   const mockEmail = process.env.MOCK_EMAIL === 'true';
 
-  if (isDevelopment || mockEmail) {
+  if (mockEmail) {
     console.log('🧪 Development mode: Simulating email send...');
     const frontendUrl = process.env.CLIENT_URL || 'http://localhost:5173';
     const resetUrl = `${frontendUrl}/reset-password?token=${resetToken}`;

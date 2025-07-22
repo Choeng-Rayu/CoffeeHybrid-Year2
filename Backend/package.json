@@ -29,7 +29,7 @@
     "axios": "^1.10.0",
     "axois": "^0.0.1-security",
     "bcryptjs": "^2.4.3",
-    "cores": "^0.8.5",
+    "cores": "^0.8.0",
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",
     "express": "^4.21.2",
@@ -43,6 +43,9 @@
     "passport-oauth2": "^1.8.0",
     "qr-image": "^3.2.0",
     "sequelize": "^6.37.7",
+    "swagger": "^0.0.1",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
     "uuid": "^9.0.1"
   },
   "devDependencies": {
