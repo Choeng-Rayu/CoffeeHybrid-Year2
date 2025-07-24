@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useUser } from '../../../context/UserContext';
 import { ordersAPI } from '../../../services/api';
 import QRCode from 'react-qr-code';
-import { motion, AnimatePresence } from 'framer-motion';
 import { FiCoffee, FiClock, FiCheckCircle, FiX, FiXCircle, FiShoppingBag } from 'react-icons/fi';
 import styles from './OrderHistory.module.css';
 
@@ -95,47 +94,38 @@ const OrderHistory = () => {
 
   if (loading) {
     return (
-      <motion.div 
+      <div 
         className={styles.ordersContainer}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
       >
         <div className={styles.loading}>
           <div className={styles.spinner}></div>
           <p>Loading your orders...</p>
         </div>
-      </motion.div>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <motion.div 
+      <div 
         className={styles.ordersContainer}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
       >
         <div className={styles.error}>
           <p>{error}</p>
-          <motion.button 
+          <button 
             onClick={fetchOrders} 
             className={styles.retryBtn}
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.98 }}
           >
             Try Again
-          </motion.button>
+          </button>
         </div>
-      </motion.div>
+      </div>
     );
   }
 
   return (
-    <motion.div 
+    <div 
       className={styles.ordersContainer}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.3 }}
     >
       <div className={styles.header}>
         <h1 className={styles.title}>Your Coffee Journey</h1>
@@ -145,36 +135,26 @@ const OrderHistory = () => {
       </div>
 
       {orders.length === 0 ? (
-        <motion.div 
+        <div 
           className={styles.noOrders}
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.2 }}
         >
           <FiCoffee className={styles.emptyIcon} />
           <h3>No orders yet</h3>
           <p>Your coffee adventure begins here</p>
-          <motion.button 
+          <button 
             onClick={() => navigate('/menu')} 
             className={styles.browseBtn}
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.98 }}
           >
             Explore Our Menu
-          </motion.button>
-        </motion.div>
+          </button>
+        </div>
       ) : (
         <div className={styles.ordersList}>
-          <AnimatePresence>
-            {orders.map((order, index) => (
-              <motion.div
-                key={order.id || order._id}
-                className={styles.orderCard}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
-                whileHover={{ y: -2 }}
-              >
+          {orders.map((order, index) => (
+            <div
+              key={order.id || order._id}
+              className={styles.orderCard}
+            >
                 <div className={styles.orderHeader}>
                   <div className={styles.orderInfo}>
                     <h3 className={styles.orderId}>Order #{(order.id || order._id)?.toString().slice(-8) || 'N/A'}</h3>
