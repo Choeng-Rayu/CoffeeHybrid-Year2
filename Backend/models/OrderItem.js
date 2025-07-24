@@ -2,19 +2,11 @@ export default (sequelize, DataTypes) => {
   const OrderItem = sequelize.define('OrderItem', {
     productId: {
       type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: 'Products',
-        key: 'id'
-      }
+      allowNull: false
     },
     orderId: {
       type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: 'Orders',
-        key: 'id'
-      }
+      allowNull: false
     },
     name: {
       type: DataTypes.STRING,

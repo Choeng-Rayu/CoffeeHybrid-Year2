@@ -2,11 +2,7 @@ export default (sequelize, DataTypes) => {
   const Order = sequelize.define('Order', {
     userId: {
       type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: 'Users',
-        key: 'id'
-      }
+      allowNull: false
     },
     total: {
       type: DataTypes.FLOAT,

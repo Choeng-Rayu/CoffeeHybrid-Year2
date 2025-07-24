@@ -57,6 +57,44 @@ const AdminDashboard = () => {
     fetchDashboardData();
   };
 
+  const handleExportOrders = async () => {
+    try {
+      const blob = await adminAPI.exportOrdersCSV(user.id);
+
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `orders_${user.shopName}_${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error exporting orders:', error);
+      setError('Failed to export orders data');
+    }
+  };
+
+  const handleExportAnalytics = async () => {
+    try {
+      const blob = await adminAPI.exportAnalyticsCSV(user.id, { period: 'all' });
+
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `analytics_${user.shopName}_${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error exporting analytics:', error);
+      setError('Failed to export analytics data');
+    }
+  };
+
   if (!isAuthenticated || (user.role !== 'seller' && user.role !== 'admin')) {
     return null;
   }
@@ -188,6 +226,18 @@ const AdminDashboard = () => {
                   className={styles.actionBtn}
                 >
                   📊 Sales Analytics
+                </button>
+                <button
+                  onClick={handleExportOrders}
+                  className={styles.actionBtn}
+                >
+                  📋 Export Orders CSV
+                </button>
+                <button
+                  onClick={handleExportAnalytics}
+                  className={styles.actionBtn}
+                >
+                  📊 Export Analytics CSV
                 </button>
               </div>
             </div>

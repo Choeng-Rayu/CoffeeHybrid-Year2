@@ -187,8 +187,10 @@ export const deleteProduct = async (req, res, next) => {
  */
 export const getSellerAnalytics = async (req, res, next) => {
   try {
+    console.log('📊 Analytics requested for seller:', req.params.sellerId);
     const { sellerId } = req.params;
-    const { period, groupBy } = req.query;
+    const { period = 'all' } = req.query;
+
     // Determine date filter based on period
     let startDate = null;
     if (period && period !== 'all') {
@@ -210,83 +212,179 @@ export const getSellerAnalytics = async (req, res, next) => {
           startDate = null;
       }
     }
-    // Fetch items for this seller, optionally filtering by order date
-    const orderInclude = { model: Order, as: 'order', required: true };
+    // Fetch orders containing this seller's products
+    const whereClause = {};
     if (startDate) {
-      orderInclude.where = { createdAt: { [Op.gte]: startDate } };
+      whereClause.createdAt = { [Op.gte]: startDate };
     }
-    const items = await OrderItem.findAll({
-      include: [
-        { model: Product, as: 'product', where: { sellerId } },
-        orderInclude
-      ]
+
+    const orders = await Order.findAll({
+      where: whereClause,
+      include: [{
+        model: OrderItem,
+        as: 'items',
+        include: [{
+          model: Product,
+          as: 'product',
+          where: { sellerId }
+        }]
+      }]
     });
-    // Overview stats
-    const orderIds = new Set(items.map(i => i.orderId));
-    const totalOrders = orderIds.size;
-    const totalRevenue = items.reduce((sum, i) => sum + (i.price || 0), 0);
-    const totalItemsSold = items.reduce((sum, i) => sum + (i.quantity || 0), 0);
+
+    // Filter orders that contain this seller's products
+    const sellerOrders = orders.filter(order =>
+      order.items && order.items.length > 0
+    );
+
+    console.log(`📋 Found ${orders.length} total orders, ${sellerOrders.length} contain seller's products`);
+
+    // Calculate overview stats
+    const totalOrders = sellerOrders.length;
+    let totalRevenue = 0;
+    let totalItemsSold = 0;
+
+    sellerOrders.forEach(order => {
+      if (order.status === 'completed') {
+        totalRevenue += parseFloat(order.total || 0);
+      }
+      order.items.forEach(item => {
+        totalItemsSold += parseInt(item.quantity || 0);
+      });
+    });
+
     const averageOrderValue = totalOrders ? totalRevenue / totalOrders : 0;
+
     const overview = {
       totalOrders,
       totalRevenue,
       averageOrderValue,
       totalItemsSold
     };
-    // Detailed product performance
-    const prodMap = {};
-    const catMap = {};
-    const trendMap = {};
-    const sizeMap = {};
-    const addOnMap = {};
-    items.forEach(item => {
-      const prod = item.product;
-      const orderTime = item.order.createdAt;
-      // Product performance
-      if (!prodMap[prod.id]) prodMap[prod.id] = { _id: prod.id, productName: prod.name, category: prod.category, totalSold: 0, totalRevenue: 0, orderIds: new Set() };
-      prodMap[prod.id].totalSold += item.quantity;
-      prodMap[prod.id].totalRevenue += item.price;
-      prodMap[prod.id].orderIds.add(item.orderId);
-      // Category performance
-      if (!catMap[prod.category]) catMap[prod.category] = { _id: prod.category, category: prod.category, totalSold: 0, totalRevenue: 0 };
-      catMap[prod.category].totalSold += item.quantity;
-      catMap[prod.category].totalRevenue += item.price;
-      // Sales trends grouped by period (hour/day)
-      const key = groupBy === 'hour'
-        ? new Date(orderTime).getHours()
-        : new Date(orderTime).toISOString().slice(0,10);
-      if (!trendMap[key]) trendMap[key] = { _id: key, totalOrders: new Set(), totalRevenue: 0 };
-      trendMap[key].totalOrders.add(item.orderId);
-      trendMap[key].totalRevenue += item.price;
-      // Size analysis
-      if (!sizeMap[item.size]) sizeMap[item.size] = { _id: item.size, size: item.size, totalSold: 0, totalRevenue: 0 };
-      sizeMap[item.size].totalSold += item.quantity;
-      sizeMap[item.size].totalRevenue += item.price;
-      // Add-on analysis
-      (item.addOns || []).forEach(ao => {
-        if (!addOnMap[ao.name]) addOnMap[ao.name] = { _id: ao.name, addOn: ao.name, count: 0, revenue: 0 };
-        addOnMap[ao.name].count += 1;
-        addOnMap[ao.name].revenue += ao.price;
+    // Calculate detailed analytics
+    const productPerformance = [];
+    const categoryPerformance = [];
+    const salesTrends = [];
+    const sizeAnalysis = [];
+    const addOnAnalysis = [];
+
+    // Product performance analysis
+    const productStats = {};
+    const categoryStats = {};
+    const sizeStats = {};
+    const addOnStats = {};
+
+    sellerOrders.forEach(order => {
+
+      order.items.forEach(item => {
+        const product = item.product;
+        const productId = product.id;
+
+        // Product performance
+        if (!productStats[productId]) {
+          productStats[productId] = {
+            id: productId,
+            _id: productId, // For compatibility
+            productName: product.name,
+            category: product.category,
+            totalSold: 0,
+            totalRevenue: 0,
+            orderCount: 0
+          };
+        }
+        productStats[productId].totalSold += parseInt(item.quantity || 0);
+        productStats[productId].totalRevenue += parseFloat(item.price || 0);
+        productStats[productId].orderCount += 1;
+
+        // Category performance
+        const category = product.category;
+        if (!categoryStats[category]) {
+          categoryStats[category] = {
+            id: category,
+            _id: category,
+            category: category,
+            totalSold: 0,
+            totalRevenue: 0
+          };
+        }
+        categoryStats[category].totalSold += parseInt(item.quantity || 0);
+        categoryStats[category].totalRevenue += parseFloat(item.price || 0);
+
+        // Size analysis
+        const size = item.size;
+        if (!sizeStats[size]) {
+          sizeStats[size] = {
+            id: size,
+            _id: size,
+            size: size,
+            totalSold: 0,
+            totalRevenue: 0
+          };
+        }
+        sizeStats[size].totalSold += parseInt(item.quantity || 0);
+        sizeStats[size].totalRevenue += parseFloat(item.price || 0);
+
+        // Add-on analysis
+        if (item.addOns && Array.isArray(item.addOns)) {
+          item.addOns.forEach(addOn => {
+            const addOnName = addOn.name;
+            if (!addOnStats[addOnName]) {
+              addOnStats[addOnName] = {
+                id: addOnName,
+                _id: addOnName,
+                addOn: addOnName,
+                count: 0,
+                revenue: 0
+              };
+            }
+            addOnStats[addOnName].count += 1;
+            addOnStats[addOnName].revenue += parseFloat(addOn.price || 0);
+          });
+        }
       });
     });
-    const productPerformance = Object.values(prodMap).map(p => ({
-      _id: p._id,
-      productName: p.productName,
-      category: p.category,
-      totalSold: p.totalSold,
-      totalRevenue: p.totalRevenue,
-      averagePrice: p.totalSold ? p.totalRevenue / p.totalSold : 0,
-      orderCount: p.orderIds.size
-    })).sort((a,b) => b.totalSold - a.totalSold);
-    const categoryPerformance = Object.values(catMap);
-    const salesTrends = Object.values(trendMap).map(t => ({
-      _id: t._id,
-      totalOrders: t.totalOrders.size,
-      totalRevenue: t.totalRevenue
-    })).sort((a,b) => a._id < b._id ? -1 : 1);
-    const sizeAnalysis = Object.values(sizeMap);
-    const addOnAnalysis = Object.values(addOnMap);
-    res.json({ success: true, analytics: { overview, productPerformance, categoryPerformance, salesTrends, sizeAnalysis, addOnAnalysis } });
+
+    // Convert to arrays and add calculated fields
+    Object.values(productStats).forEach(product => {
+      product.averagePrice = product.totalSold ? product.totalRevenue / product.totalSold : 0;
+      productPerformance.push(product);
+    });
+    productPerformance.sort((a, b) => b.totalSold - a.totalSold);
+
+    categoryPerformance.push(...Object.values(categoryStats));
+    sizeAnalysis.push(...Object.values(sizeStats));
+    addOnAnalysis.push(...Object.values(addOnStats));
+
+    // Simple sales trends (daily)
+    const dailyStats = {};
+    sellerOrders.forEach(order => {
+      const date = new Date(order.createdAt).toISOString().slice(0, 10);
+      if (!dailyStats[date]) {
+        dailyStats[date] = {
+          id: date,
+          _id: date,
+          date: date,
+          totalOrders: 0,
+          totalRevenue: 0
+        };
+      }
+      dailyStats[date].totalOrders += 1;
+      if (order.status === 'completed') {
+        dailyStats[date].totalRevenue += parseFloat(order.total || 0);
+      }
+    });
+    salesTrends.push(...Object.values(dailyStats).sort((a, b) => a.date.localeCompare(b.date)));
+
+    res.json({
+      success: true,
+      analytics: {
+        overview,
+        productPerformance,
+        categoryPerformance,
+        salesTrends,
+        sizeAnalysis,
+        addOnAnalysis
+      }
+    });
   } catch (err) {
     next(err);
   }
@@ -311,7 +409,9 @@ export const getSellerAnalytics = async (req, res, next) => {
  */
 export const getSellerDashboardStats = async (req, res, next) => {
   try {
+    console.log('📊 Dashboard stats requested for seller:', req.params.sellerId);
     const { sellerId } = req.params;
+
     // Count this seller's products
     const productCount = await Product.count({ where: { sellerId } });
 
@@ -321,34 +421,393 @@ export const getSellerDashboardStats = async (req, res, next) => {
     const todayOrders = await Order.count({
       where: { createdAt: { [Op.gte]: startOfDay } },
       include: [{
-        model: OrderItem, as: 'items', include: [{ model: Product, as: 'product', where: { sellerId } }]
+        model: OrderItem,
+        as: 'items',
+        include: [{
+          model: Product,
+          as: 'product',
+          where: { sellerId }
+        }]
       }],
       distinct: true
     });
 
-    // Aggregate order counts by status
-    const statuses = ['pending', 'completed', 'no-show'];
-    const orderStats = await Promise.all(statuses.map(async status => {
-      const count = await Order.count({
-        where: { status },
-        include: [{ model: OrderItem, as: 'items', include: [{ model: Product, as: 'product', where: { sellerId } }] }],
-        distinct: true
-      });
-      return { _id: status, count };
+    // Calculate total revenue for this seller
+    const revenueResult = await Order.findAll({
+      include: [{
+        model: OrderItem,
+        as: 'items',
+        include: [{
+          model: Product,
+          as: 'product',
+          where: { sellerId }
+        }]
+      }],
+      attributes: ['total', 'status']
+    });
+
+    let totalRevenue = 0;
+    const statusCounts = { pending: 0, completed: 0, 'no-show': 0, cancelled: 0 };
+
+    revenueResult.forEach(order => {
+      if (order.status === 'completed') {
+        totalRevenue += parseFloat(order.total || 0);
+      }
+      statusCounts[order.status] = (statusCounts[order.status] || 0) + 1;
+    });
+
+    // Format order stats for frontend compatibility
+    const orderStats = Object.entries(statusCounts).map(([status, count]) => ({
+      id: status,
+      _id: status, // Keep for backward compatibility
+      status,
+      count,
+      totalRevenue: status === 'completed' ? totalRevenue : 0
     }));
 
-    res.json({ success: true, stats: { productCount, todayOrders, orderStats } });
+    res.json({
+      success: true,
+      stats: {
+        productCount,
+        todayOrders,
+        totalRevenue,
+        orderStats
+      }
+    });
   } catch (err) {
+    console.error('Dashboard stats error:', err);
     next(err);
   }
 };
 
-// Placeholder for getSellerOrders
+/**
+ * @swagger
+ * /admin/orders/{sellerId}:
+ *   get:
+ *     summary: Get orders for a specific seller
+ *     tags: [Admin]
+ *     parameters:
+ *       - in: path
+ *         name: sellerId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: offset
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Seller orders retrieved successfully
+ */
 export const getSellerOrders = async (req, res, next) => {
   try {
-    // TODO: Implement seller orders logic here
-    res.json({ success: true, message: 'Seller orders endpoint (to be implemented)' });
+    const { sellerId } = req.params;
+    const { status, limit = 50, offset = 0 } = req.query;
+
+    const whereClause = {};
+    if (status) {
+      whereClause.status = status;
+    }
+
+    const orders = await Order.findAll({
+      where: whereClause,
+      include: [{
+        model: OrderItem,
+        as: 'items',
+        include: [{
+          model: Product,
+          as: 'product',
+          where: { sellerId }
+        }]
+      }],
+      order: [['createdAt', 'DESC']],
+      limit: parseInt(limit),
+      offset: parseInt(offset)
+    });
+
+    // Filter orders that actually contain this seller's products
+    const sellerOrders = orders.filter(order =>
+      order.items && order.items.length > 0
+    );
+
+    res.json({
+      success: true,
+      orders: sellerOrders,
+      total: sellerOrders.length
+    });
   } catch (err) {
+    console.error('Seller orders error:', err);
+    next(err);
+  }
+};
+
+/**
+ * @swagger
+ * /admin/export/orders/{sellerId}:
+ *   get:
+ *     summary: Export seller orders to CSV
+ *     tags: [Admin]
+ *     parameters:
+ *       - in: path
+ *         name: sellerId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: startDate
+ *         schema:
+ *           type: string
+ *           format: date
+ *       - in: query
+ *         name: endDate
+ *         schema:
+ *           type: string
+ *           format: date
+ *     responses:
+ *       200:
+ *         description: CSV file download
+ *         content:
+ *           text/csv:
+ *             schema:
+ *               type: string
+ */
+export const exportOrdersCSV = async (req, res, next) => {
+  try {
+    const { sellerId } = req.params;
+    const { status, startDate, endDate } = req.query;
+
+    const whereClause = {};
+    if (status) {
+      whereClause.status = status;
+    }
+    if (startDate || endDate) {
+      whereClause.createdAt = {};
+      if (startDate) {
+        whereClause.createdAt[Op.gte] = new Date(startDate);
+      }
+      if (endDate) {
+        whereClause.createdAt[Op.lte] = new Date(endDate);
+      }
+    }
+
+    const orders = await Order.findAll({
+      where: whereClause,
+      include: [{
+        model: OrderItem,
+        as: 'items',
+        include: [{
+          model: Product,
+          as: 'product',
+          where: { sellerId }
+        }]
+      }],
+      order: [['createdAt', 'DESC']]
+    });
+
+    // Filter orders that contain this seller's products
+    const sellerOrders = orders.filter(order =>
+      order.items && order.items.length > 0
+    );
+
+    // Generate CSV content
+    const csvHeaders = [
+      'Order ID',
+      'Date',
+      'Status',
+      'Customer Info',
+      'Product Name',
+      'Size',
+      'Sugar Level',
+      'Ice Level',
+      'Add-ons',
+      'Quantity',
+      'Item Price',
+      'Order Total',
+      'Order Source',
+      'QR Token'
+    ];
+
+    let csvContent = csvHeaders.join(',') + '\n';
+
+    sellerOrders.forEach(order => {
+      const customerInfo = order.customerInfo ?
+        `"${order.customerInfo.name || ''} (${order.customerInfo.phone || ''})"` :
+        'N/A';
+
+      order.items.forEach(item => {
+        const addOns = item.addOns && item.addOns.length > 0 ?
+          `"${item.addOns.map(ao => ao.name).join(', ')}"` :
+          'None';
+
+        const row = [
+          order.id,
+          new Date(order.createdAt).toISOString().slice(0, 19).replace('T', ' '),
+          order.status,
+          customerInfo,
+          `"${item.name}"`,
+          item.size,
+          item.sugarLevel,
+          item.iceLevel,
+          addOns,
+          item.quantity,
+          item.price,
+          order.total,
+          order.orderSource,
+          order.qrToken
+        ];
+
+        csvContent += row.join(',') + '\n';
+      });
+    });
+
+    // Set headers for CSV download
+    const filename = `orders_${sellerId}_${new Date().toISOString().slice(0, 10)}.csv`;
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(csvContent);
+
+  } catch (err) {
+    console.error('Export orders CSV error:', err);
+    next(err);
+  }
+};
+
+/**
+ * @swagger
+ * /admin/export/analytics/{sellerId}:
+ *   get:
+ *     summary: Export seller analytics to CSV
+ *     tags: [Admin]
+ *     parameters:
+ *       - in: path
+ *         name: sellerId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: period
+ *         schema:
+ *           type: string
+ *           enum: [today, week, month, year, all]
+ *     responses:
+ *       200:
+ *         description: CSV file download
+ */
+export const exportAnalyticsCSV = async (req, res, next) => {
+  try {
+    const { sellerId } = req.params;
+    const { period = 'all' } = req.query;
+
+    // Get analytics data (reuse existing logic)
+    let startDate = null;
+    if (period && period !== 'all') {
+      startDate = new Date();
+      switch (period) {
+        case 'today':
+          startDate.setHours(0, 0, 0, 0);
+          break;
+        case 'week':
+          startDate.setDate(startDate.getDate() - 7);
+          break;
+        case 'month':
+          startDate.setMonth(startDate.getMonth() - 1);
+          break;
+        case 'year':
+          startDate.setFullYear(startDate.getFullYear() - 1);
+          break;
+      }
+    }
+
+    const whereClause = {};
+    if (startDate) {
+      whereClause.createdAt = { [Op.gte]: startDate };
+    }
+
+    const orders = await Order.findAll({
+      where: whereClause,
+      include: [{
+        model: OrderItem,
+        as: 'items',
+        include: [{
+          model: Product,
+          as: 'product',
+          where: { sellerId }
+        }]
+      }]
+    });
+
+    const sellerOrders = orders.filter(order =>
+      order.items && order.items.length > 0
+    );
+
+    // Product performance CSV
+    const productStats = {};
+    sellerOrders.forEach(order => {
+      order.items.forEach(item => {
+        const product = item.product;
+        const productId = product.id;
+
+        if (!productStats[productId]) {
+          productStats[productId] = {
+            productName: product.name,
+            category: product.category,
+            totalSold: 0,
+            totalRevenue: 0,
+            orderCount: 0
+          };
+        }
+        productStats[productId].totalSold += parseInt(item.quantity || 0);
+        productStats[productId].totalRevenue += parseFloat(item.price || 0);
+        productStats[productId].orderCount += 1;
+      });
+    });
+
+    // Generate CSV content
+    const csvHeaders = [
+      'Product Name',
+      'Category',
+      'Total Sold',
+      'Total Revenue',
+      'Average Price',
+      'Order Count'
+    ];
+
+    let csvContent = csvHeaders.join(',') + '\n';
+
+    Object.values(productStats).forEach(product => {
+      const averagePrice = product.totalSold ? product.totalRevenue / product.totalSold : 0;
+      const row = [
+        `"${product.productName}"`,
+        product.category,
+        product.totalSold,
+        product.totalRevenue.toFixed(2),
+        averagePrice.toFixed(2),
+        product.orderCount
+      ];
+      csvContent += row.join(',') + '\n';
+    });
+
+    // Set headers for CSV download
+    const filename = `analytics_${sellerId}_${period}_${new Date().toISOString().slice(0, 10)}.csv`;
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(csvContent);
+
+  } catch (err) {
+    console.error('Export analytics CSV error:', err);
     next(err);
   }
 };

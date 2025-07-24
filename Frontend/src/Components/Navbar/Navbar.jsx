@@ -40,7 +40,7 @@ const Navbar = () => {
       <div className={styles.navContainer}>
         <Link to="/" className={styles.logo}>
           <span className={styles.logoIcon}>☕</span>
-          <span className={styles.logoText}>Brew Haven</span>
+          <span className={styles.logoText}>Hybride Coffee</span>
         </Link>
         
         <div className={`${styles.navLinks} ${menuOpen ? styles.open : ''}`}>

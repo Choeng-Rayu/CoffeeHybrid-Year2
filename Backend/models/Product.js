@@ -1,5 +1,3 @@
-import { all } from "axios";
-
 export default (sequelize, DataTypes) => {
   const Product = sequelize.define('Product', {
     name: {
@@ -38,11 +36,7 @@ export default (sequelize, DataTypes) => {
     },
     sellerId: {
       type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: 'Users',
-        key: 'id'
-      }
+      allowNull: false
     },
     shopName: {
       type: DataTypes.STRING,

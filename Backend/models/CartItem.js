@@ -2,11 +2,7 @@ export default (sequelize, DataTypes) => {
   const CartItem = sequelize.define('CartItem', {
     userId: {
       type: DataTypes.INTEGER,
-      allowNull: true, // Allow null for guest users
-      references: {
-        model: 'Users',
-        key: 'id'
-      }
+      allowNull: true // Allow null for guest users
     },
     sessionId: {
       type: DataTypes.STRING,
@@ -15,11 +11,7 @@ export default (sequelize, DataTypes) => {
     },
     productId: {
       type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: 'Products',
-        key: 'id'
-      }
+      allowNull: false
     },
     name: {
       type: DataTypes.STRING,

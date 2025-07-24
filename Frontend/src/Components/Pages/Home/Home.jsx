@@ -1,9 +1,16 @@
 import { Link } from 'react-router-dom';
 import { useUser } from '../../../context/UserContext';
 import styles from './Home.module.css';
+import { useEffect, useState } from 'react';
 
 const Home = () => {
   const { isAuthenticated, user } = useUser();
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const userAgent = navigator.userAgent.toLowerCase();
+    setIsMobile(/mobile|android|ios|iphone|ipad|ipod|windows phone/i.test(userAgent));
+  }, []);
 
   return (
     <div className={styles.container}>
@@ -18,6 +25,12 @@ const Home = () => {
             with secure QR code pickup verification.
           </p>
           
+          {isMobile && (
+            <div className={styles.mobileRecommendation}>
+              <p>For a better experience on mobile, we recommend using our Telegram bot!</p>
+            </div>
+          )}
+
           <div className={styles.ctaContainer}>
             {isAuthenticated ? (
               <>
@@ -41,6 +54,11 @@ const Home = () => {
                 </Link>
               </div>
             )}
+            <div className={styles.buttonGroup}>
+                <a href="https://t.me/HybrideCoffeeBot" target="_blank" rel="noopener noreferrer" className={`${styles.button} ${styles.telegram}`}>
+                    <span className={styles.telegramIcon}>✈️</span> Order on Telegram
+                </a>
+            </div>
           </div>
         </div>
       </section>

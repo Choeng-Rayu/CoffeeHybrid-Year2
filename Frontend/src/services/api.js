@@ -212,6 +212,23 @@ export const adminAPI = {
   getAnalytics: async (sellerId, params = {}) => {
     const response = await api.get(`/admin/analytics/${sellerId}`, { params });
     return response.data;
+  },
+
+  // Export data to CSV
+  exportOrdersCSV: async (sellerId, params = {}) => {
+    const response = await api.get(`/admin/export/orders/${sellerId}`, {
+      params,
+      responseType: 'blob'
+    });
+    return response.data;
+  },
+
+  exportAnalyticsCSV: async (sellerId, params = {}) => {
+    const response = await api.get(`/admin/export/analytics/${sellerId}`, {
+      params,
+      responseType: 'blob'
+    });
+    return response.data;
   }
 };
 

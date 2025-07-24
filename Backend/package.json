@@ -11,6 +11,7 @@
     "restart": "npm run kill-port && npm run dev",
     "hosting": "node scripts/hosting-manager.js",
     "sync-db": "node scripts/sync-database.js",
+    "setup-cloud-db": "node scripts/setup-cloud-database.js",
     "insert-sample-data": "node scripts/insertSampleData.js",
     "hosting:render": "node scripts/hosting-manager.js render",
     "hosting:railway": "node scripts/hosting-manager.js railway",

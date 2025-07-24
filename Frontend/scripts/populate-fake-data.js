@@ -152,7 +152,7 @@ async function populateFakeData() {
     try {
       const menuResponse = await axios.post(`${API_BASE_URL}/menu/initialize`);
       console.log('✅ Menu initialized:', menuResponse.data.message);
-    } catch (error) {
+    } catch (_error) {
       console.log('ℹ️ Menu already initialized');
     }
 
@@ -164,7 +164,7 @@ async function populateFakeData() {
         const response = await axios.post(`${API_BASE_URL}/auth/register`, customerData);
         customers.push(response.data.user);
         console.log(`✅ Created customer: ${customerData.username}`);
-      } catch (error) {
+      } catch (_error) {
         if (error.response?.status === 400) {
           console.log(`ℹ️ Customer ${customerData.username} already exists`);
           // Try to login to get user data
@@ -200,7 +200,7 @@ async function populateFakeData() {
         });
         sellers.push({ ...loginResponse.data.user, shopName: cred.shopName });
         console.log(`✅ Logged in seller: ${cred.shopName}`);
-      } catch (error) {
+      } catch (_error) {
         console.error(`❌ Could not login seller ${cred.shopName}:`, error.message);
       }
     }
@@ -217,7 +217,7 @@ async function populateFakeData() {
               userId: seller.id
             });
             console.log(`✅ Added product: ${productData.name} for ${seller.shopName}`);
-          } catch (error) {
+          } catch (_error) {
             console.error(`❌ Error adding product ${productData.name}:`, error.message);
           }
         }
@@ -269,8 +269,8 @@ async function populateFakeData() {
               // Ignore verification errors for demo
             }
           }
-        } catch (error) {
-          console.error(`❌ Error creating order:`, error.message);
+        } catch (_error) {
+          // console.error(`❌ Error creating order:`, error.message);
         }
       }
     }
@@ -293,7 +293,7 @@ async function populateFakeData() {
       console.log(`  - ${seller.shopName}: ${seller.email} / ${seller.password}`);
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error('❌ Error populating fake data:', error.message);
     
     if (error.code === 'ECONNREFUSED') {

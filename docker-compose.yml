@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Backend/Dockerfile
+    container_name: coffeehybrid-backend
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      - MONGODB_URI=${MONGODB_URI}
+      - NODE_ENV=production
+      - PORT=5000
+    networks:
+      - coffee-net
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Frontend/Dockerfile
+    container_name: coffeehybrid-frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - coffee-net
+
+  bot:
+    build:
+      context: .
+      dockerfile: Bot/Dockerfile
+    container_name: coffeehybrid-bot
+    restart: always
+    environment:
+      - BOT_TOKEN=${BOT_TOKEN}
+      - API_BASE_URL=http://backend:5000/api
+      - WEBHOOK_URL=${WEBHOOK_URL}
+    depends_on:
+      - backend
+    networks:
+      - coffee-net
+
+networks:
+  coffee-net:
+    driver: bridge

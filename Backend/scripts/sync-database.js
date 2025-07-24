@@ -6,15 +6,15 @@ dotenv.config();
 async function syncDatabase() {
   try {
     console.log('🔄 Starting database synchronization...');
-    
+
     // Test database connection
     await sequelize.authenticate();
     console.log('✅ Database connection established successfully.');
-    
-    // Drop all tables and recreate them (use with caution!)
-    console.log('⚠️  Dropping existing tables and recreating...');
-    await sequelize.sync({ force: true });
-    
+
+    // For cloud databases, we'll use alter instead of force to avoid foreign key issues
+    console.log('🔄 Synchronizing database schema...');
+    await sequelize.sync({ alter: true });
+
     console.log('✅ Database synchronized successfully!');
     console.log('\n📊 Tables created:');
     console.log('   - users');

@@ -1,5 +1,5 @@
 import express from 'express';
-import { registerSeller, addProduct, getSellerProducts, updateProduct, deleteProduct, getSellerOrders, getSellerDashboardStats, getSellerAnalytics } from '../controllers/adminController.js';
+import { registerSeller, addProduct, getSellerProducts, updateProduct, deleteProduct, getSellerOrders, getSellerDashboardStats, getSellerAnalytics, exportOrdersCSV, exportAnalyticsCSV } from '../controllers/adminController.js';
 import { requireSeller } from '../middleWare/requireSeller.js';
 
 const router = express.Router();
@@ -27,5 +27,9 @@ router.get('/dashboard/:sellerId', getSellerDashboardStats);
 
 // Get comprehensive sales analytics
 router.get('/analytics/:sellerId', getSellerAnalytics);
+
+// CSV Export routes
+router.get('/export/orders/:sellerId', exportOrdersCSV);
+router.get('/export/analytics/:sellerId', exportAnalyticsCSV);
 
 export default router;

@@ -21,18 +21,60 @@ const SalesAnalytics = () => {
     try {
       setLoading(true);
       setError('');
-      
+
       const response = await adminAPI.getAnalytics(user.id, {
         period: selectedPeriod,
         groupBy: selectedPeriod === 'today' ? 'hour' : 'day'
       });
-      
+
       setAnalytics(response.analytics);
     } catch (error) {
       console.error('Error fetching analytics:', error);
       setError('Failed to load analytics data');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleExportAnalytics = async () => {
+    try {
+      const blob = await adminAPI.exportAnalyticsCSV(user.id, {
+        period: selectedPeriod
+      });
+
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `analytics_${user.shopName}_${selectedPeriod}_${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error exporting analytics:', error);
+      setError('Failed to export analytics data');
+    }
+  };
+
+  const handleExportOrders = async () => {
+    try {
+      const blob = await adminAPI.exportOrdersCSV(user.id, {
+        // Add any filters if needed
+      });
+
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `orders_${user.shopName}_${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error exporting orders:', error);
+      setError('Failed to export orders data');
     }
   };
 
@@ -126,6 +168,15 @@ const SalesAnalytics = () => {
         <button onClick={fetchAnalytics} className={styles.refreshBtn}>
           🔄 Refresh
         </button>
+
+        <div className={styles.exportButtons}>
+          <button onClick={handleExportAnalytics} className={styles.exportBtn}>
+            📊 Export Analytics CSV
+          </button>
+          <button onClick={handleExportOrders} className={styles.exportBtn}>
+            📋 Export Orders CSV
+          </button>
+        </div>
       </div>
 
       {/* Overview Cards */}
@@ -251,7 +302,7 @@ const SalesAnalytics = () => {
             <div className={styles.detailCard}>
               <h3>📏 Size Preferences</h3>
               <div className={styles.detailList}>
-                {sizeAnalysis?.map((size, index) => (
+                {sizeAnalysis?.map((size) => (
                   <div key={size._id} className={styles.detailItem}>
                     <span className={styles.detailLabel}>{size.size}</span>
                     <div className={styles.detailStats}>
@@ -267,7 +318,7 @@ const SalesAnalytics = () => {
             <div className={styles.detailCard}>
               <h3>➕ Popular Add-ons</h3>
               <div className={styles.detailList}>
-                {addOnAnalysis?.slice(0, 5).map((addon, index) => (
+                {addOnAnalysis?.slice(0, 5).map((addon) => (
                   <div key={addon._id} className={styles.detailItem}>
                     <span className={styles.detailLabel}>{addon.addOnName}</span>
                     <div className={styles.detailStats}>
