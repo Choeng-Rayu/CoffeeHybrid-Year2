@@ -116,7 +116,7 @@ const Menu = () => {
         ) : (
           products.map(product => (
             <ProductCard
-              key={product._id}
+              key={product.id || product._id}
               product={product}
               onClick={() => handleProductClick(product)}
             />

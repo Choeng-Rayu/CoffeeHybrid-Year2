@@ -442,7 +442,7 @@ bot.hears('✅ Add to Cart', async (ctx) => {
 
   const cartItem = {
     id: Date.now(),
-    productId: session.currentProduct._id,
+    productId: session.currentProduct.id || session.currentProduct._id,
     name: session.currentProduct.name,
     ...session.customization,
     totalPrice: calculateItemPrice(session.currentProduct, session.customization)

@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import styles from './ProductModal.module.css';
 
 const ProductModal = ({ product, onClose }) => {
-  const { isAuthenticated } = useUser();
+  const { user, isAuthenticated } = useUser();
   const { addToCart, calculateItemPrice } = useCart();
   const navigate = useNavigate();
 
@@ -56,13 +56,13 @@ const ProductModal = ({ product, onClose }) => {
     }));
   };
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (!isAuthenticated) {
       navigate('/login');
       return;
     }
 
-    addToCart(product, customizations);
+    await addToCart(product, customizations, user?.id);
     onClose();
   };
 

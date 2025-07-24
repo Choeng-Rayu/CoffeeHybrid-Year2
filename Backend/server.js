@@ -17,6 +17,7 @@ import  sequelize  from './models/index.js';  // adjust path if needed
 import authRoutes from './routes/auth.js';
 import menuRoutes from './routes/menu.js';
 import orderRoutes from './routes/orders.js';
+import cartRoutes from './routes/cart.js';
 import adminRoutes from './routes/admin.js';
 import googleAuthRoutes from './routes/googleAuth.js';
 
@@ -75,6 +76,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/auth', googleAuthRoutes);
 app.use('/api/menu', menuRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/cart', cartRoutes);
 app.use('/api/admin', adminRoutes);
 
 app.get('/api/health', (req, res) => {

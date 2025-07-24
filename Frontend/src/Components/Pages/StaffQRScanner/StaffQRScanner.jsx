@@ -290,7 +290,7 @@ const StaffQRScanner = () => {
 
               <div className={styles.orderItems}>
                 <h4>Items:</h4>
-                {verificationResult.order.items.map((item, index) => (
+                {(verificationResult.order.items || []).map((item, index) => (
                   <div key={index} className={styles.orderItem}>
                     <span className={styles.itemName}>{item.name}</span>
                     <span className={styles.itemDetails}>

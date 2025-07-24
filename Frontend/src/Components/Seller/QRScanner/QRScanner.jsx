@@ -481,7 +481,7 @@ const QRScanner = () => {
 
               <div className={styles.orderItems}>
                 <h4>Order Items</h4>
-                {verificationResult.order.items.map((item, index) => (
+                {(verificationResult.order.items || []).map((item, index) => (
                   <div key={index} className={styles.orderItem}>
                     <div className={styles.itemName}>{item.name}</div>
                     <div className={styles.itemDetails}>
