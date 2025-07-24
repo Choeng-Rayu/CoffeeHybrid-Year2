@@ -12,6 +12,7 @@ const StaffQRScanner = () => {
   const [scanMode, setScanMode] = useState('camera');
   const [stream, setStream] = useState(null);
   const [recentScans, setRecentScans] = useState([]);
+  const [torchOn, setTorchOn] = useState(false);
   
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
@@ -21,13 +22,20 @@ const StaffQRScanner = () => {
   const startCamera = async () => {
     try {
       setError('');
-      const mediaStream = await navigator.mediaDevices.getUserMedia({
+      const constraints = {
         video: { 
           facingMode: 'environment',
           width: { ideal: 1280 },
           height: { ideal: 720 }
         }
-      });
+      };
+      
+      // Add torch capability if supported
+      if ('torch' in MediaTrackCapabilities.prototype) {
+        constraints.video.torch = torchOn;
+      }
+      
+      const mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
       
       setStream(mediaStream);
       if (videoRef.current) {
@@ -44,6 +52,23 @@ const StaffQRScanner = () => {
     }
   };
 
+  // Toggle torch/flashlight
+  const toggleTorch = async () => {
+    if (!stream) return;
+    
+    try {
+      const videoTrack = stream.getVideoTracks()[0];
+      if (videoTrack.getCapabilities().torch) {
+        await videoTrack.applyConstraints({
+          advanced: [{ torch: !torchOn }]
+        });
+        setTorchOn(!torchOn);
+      }
+    } catch (err) {
+      console.error('Error toggling torch:', err);
+    }
+  };
+
   // Stop camera
   const stopCamera = () => {
     if (stream) {
@@ -54,6 +79,7 @@ const StaffQRScanner = () => {
       clearInterval(scanIntervalRef.current);
     }
     setIsScanning(false);
+    setTorchOn(false);
   };
 
   // QR Detection
@@ -89,6 +115,12 @@ const StaffQRScanner = () => {
   const handleVerifyQR = async (token) => {
     if (!token.trim()) {
       setError('Please enter a QR token or scan a QR code');
+      return;
+    }
+
+    // Check if this token was recently scanned to prevent duplicates
+    if (recentScans.some(scan => scan.token === token.trim())) {
+      setError('This QR code was already scanned recently');
       return;
     }
 
@@ -161,7 +193,8 @@ const StaffQRScanner = () => {
   }, []);
 
   const formatPrice = (price) => `$${price.toFixed(2)}`;
-  const formatTime = (dateString) => new Date(dateString).toLocaleTimeString();
+  const formatTime = (dateString) => new Date(dateString).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const formatDate = (dateString) => new Date(dateString).toLocaleDateString();
 
   return (
     <div className={styles.scannerContainer}>
@@ -176,13 +209,23 @@ const StaffQRScanner = () => {
         {/* Mode Selection */}
         <div className={styles.modeSelection}>
           <button
-            onClick={() => setScanMode('camera')}
+            onClick={() => {
+              if (scanMode !== 'camera') {
+                handleReset();
+                setScanMode('camera');
+              }
+            }}
             className={`${styles.modeBtn} ${scanMode === 'camera' ? styles.active : ''}`}
           >
             📷 Camera Scan
           </button>
           <button
-            onClick={() => setScanMode('manual')}
+            onClick={() => {
+              if (scanMode !== 'manual') {
+                stopCamera();
+                setScanMode('manual');
+              }
+            }}
             className={`${styles.modeBtn} ${scanMode === 'manual' ? styles.active : ''}`}
           >
             ⌨️ Manual Input
@@ -204,7 +247,7 @@ const StaffQRScanner = () => {
             ) : (
               <div className={styles.cameraActive}>
                 <div className={styles.videoContainer}>
-                  <video ref={videoRef} className={styles.video} />
+                  <video ref={videoRef} className={styles.video} playsInline />
                   <canvas ref={canvasRef} style={{ display: 'none' }} />
                   <div className={styles.scanOverlay}>
                     <div className={styles.scanFrame}></div>
@@ -214,6 +257,9 @@ const StaffQRScanner = () => {
                   </div>
                 </div>
                 <div className={styles.cameraControls}>
+                  <button onClick={toggleTorch} className={styles.torchBtn} disabled={!stream}>
+                    {torchOn ? '🔦 Turn Off Flash' : '🔦 Turn On Flash'}
+                  </button>
                   <button onClick={stopCamera} className={styles.stopCameraBtn}>
                     Stop Camera
                   </button>
@@ -248,7 +294,13 @@ const StaffQRScanner = () => {
                   disabled={isLoading || !manualToken.trim()}
                   className={styles.verifyBtn}
                 >
-                  {isLoading ? 'Verifying...' : 'Verify Order'}
+                  {isLoading ? (
+                    <span className={styles.loadingText}>
+                      <span className={styles.spinner}></span> Verifying...
+                    </span>
+                  ) : (
+                    'Verify Order'
+                  )}
                 </button>
                 <button
                   type="button"
@@ -282,22 +334,31 @@ const StaffQRScanner = () => {
             
             <div className={styles.orderSummary}>
               <div className={styles.customerInfo}>
-                <h4>Customer: {verificationResult.order.customer}</h4>
-                <p>Order ID: {verificationResult.order.id}</p>
-                <p>Total: {formatPrice(verificationResult.order.total)}</p>
-                <p>Completed: {formatTime(verificationResult.order.pickupTime)}</p>
+                <h4>{verificationResult.order.customer}</h4>
+                <div className={styles.orderMeta}>
+                  <span>Order ID: {verificationResult.order.id}</span>
+                  <span>Total: {formatPrice(verificationResult.order.total)}</span>
+                  <span>Completed: {formatTime(verificationResult.order.pickupTime)}</span>
+                </div>
               </div>
 
               <div className={styles.orderItems}>
                 <h4>Items:</h4>
-                {(verificationResult.order.items || []).map((item, index) => (
-                  <div key={index} className={styles.orderItem}>
-                    <span className={styles.itemName}>{item.name}</span>
-                    <span className={styles.itemDetails}>
-                      {item.size} | {item.sugarLevel} sugar | Qty: {item.quantity}
-                    </span>
-                  </div>
-                ))}
+                <div className={styles.itemsGrid}>
+                  {(verificationResult.order.items || []).map((item, index) => (
+                    <div key={index} className={styles.orderItem}>
+                      <div className={styles.itemHeader}>
+                        <span className={styles.itemName}>{item.name}</span>
+                        <span className={styles.itemQuantity}>×{item.quantity}</span>
+                      </div>
+                      <div className={styles.itemDetails}>
+                        <span>Size: {item.size}</span>
+                        <span>Sugar: {item.sugarLevel}</span>
+                        {item.notes && <span>Notes: {item.notes}</span>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -310,22 +371,38 @@ const StaffQRScanner = () => {
         {/* Recent Scans */}
         {recentScans.length > 0 && (
           <div className={styles.recentScans}>
-            <h4>Recent Scans</h4>
-            {recentScans.map((scan) => (
-              <div key={scan.id} className={`${styles.scanItem} ${scan.result.success ? styles.success : styles.failed}`}>
-                <div className={styles.scanInfo}>
-                  <span className={styles.scanTime}>{formatTime(scan.timestamp)}</span>
-                  <span className={styles.scanStatus}>
-                    {scan.result.success ? '✅ Verified' : '❌ Failed'}
-                  </span>
-                </div>
-                {scan.result.success && (
-                  <div className={styles.scanDetails}>
-                    {scan.result.order.customer} - {formatPrice(scan.result.order.total)}
+            <div className={styles.recentScansHeader}>
+              <h4>Recent Scans</h4>
+              <button 
+                onClick={() => setRecentScans([])} 
+                className={styles.clearHistoryBtn}
+              >
+                Clear History
+              </button>
+            </div>
+            <div className={styles.scansList}>
+              {recentScans.map((scan) => (
+                <div key={scan.id} className={`${styles.scanItem} ${scan.result.success ? styles.success : styles.failed}`}>
+                  <div className={styles.scanInfo}>
+                    <span className={styles.scanTime}>
+                      {formatDate(scan.timestamp)} at {formatTime(scan.timestamp)}
+                    </span>
+                    <span className={styles.scanStatus}>
+                      {scan.result.success ? '✅ Verified' : '❌ Failed'}
+                    </span>
                   </div>
-                )}
-              </div>
-            ))}
+                  {scan.result.success ? (
+                    <div className={styles.scanDetails}>
+                      {scan.result.order.customer} - {formatPrice(scan.result.order.total)}
+                    </div>
+                  ) : (
+                    <div className={styles.scanDetails}>
+                      Error: {scan.result.error}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
