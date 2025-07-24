@@ -97,7 +97,7 @@ const OrderConfirmation = ({ order, onClose }) => {
                 value={order.qrToken}
                 size={200}
                 level="M"
-                includeMargin={true}
+                // includeMargin removed to avoid React warning
               />
             </div>
             <p className={styles.qrInstructions}>

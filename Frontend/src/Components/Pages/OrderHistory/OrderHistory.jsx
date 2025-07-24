@@ -170,7 +170,7 @@ const OrderHistory = () => {
                       Show QR Code
                     </button>
                     <button
-                      onClick={() => handleCancelOrder(order._id)}
+                      onClick={() => handleCancelOrder(order.id)}
                       className={styles.cancelBtn}
                     >
                       Cancel Order
@@ -209,7 +209,6 @@ const OrderHistory = () => {
                 value={selectedOrder.qrToken}
                 size={250}
                 level="M"
-                includeMargin={true}
               />
             </div>
             <div className={styles.qrInstructions}>

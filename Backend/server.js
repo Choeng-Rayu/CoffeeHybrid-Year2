@@ -31,8 +31,8 @@ const PORT = hostingManager.config.port;
 const hostingConfig = hostingManager.getEnvironmentInfo();
 console.log('🌐 Hosting Configuration:', hostingConfig);
 
-// Middleware
-app.use(cors({
+// Define CORS options once
+const corsOptions = {
   origin: [
     'http://localhost:3000',
     'http://localhost:5173',
@@ -41,9 +41,15 @@ app.use(cors({
     ...hostingManager.config.corsOrigins
   ],
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
-}));
+};
+
+// Apply CORS middleware
+app.use(cors(corsOptions));
+// Handle preflight requests for all routes
+app.options('*', cors(corsOptions));
+
 app.use(express.json());
 
 // Add activity logging middleware

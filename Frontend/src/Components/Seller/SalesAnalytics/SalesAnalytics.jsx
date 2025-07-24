@@ -8,14 +8,14 @@ const SalesAnalytics = () => {
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [selectedPeriod, setSelectedPeriod] = useState('month');
+  const [selectedPeriod, setSelectedPeriod] = useState('all');
   const [selectedView, setSelectedView] = useState('overview');
 
   useEffect(() => {
     if (user?.id) {
       fetchAnalytics();
     }
-  }, [user?.id, selectedPeriod]);
+  }, [user?.id, selectedPeriod, selectedView]);
 
   const fetchAnalytics = async () => {
     try {
