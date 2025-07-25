@@ -10,11 +10,5 @@ RUN npm install
 # Copy frontend source code
 COPY . ./
 
-# Build the application
+# Build the application for static deployment
 RUN npm run build
-
-# Expose port for Digital Ocean App Platform
-EXPOSE 8080
-
-# Serve the built app using Vite preview
-CMD ["npm", "run", "preview", "--", "--host", "0.0.0.0", "--port", "8080"]
