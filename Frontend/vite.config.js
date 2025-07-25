@@ -5,9 +5,11 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    allowedHosts: ['hybridcoffee-za9sy.ondigitalocean.app']
+    host: '0.0.0.0',
+    port: 8080
+  },
+  preview: {
+    host: '0.0.0.0',
+    port: 8080
   }
-  // server:{
-  //   allowedHosts: ['b3e3-27-109-113-94.ngrok-free.app'],
-  // },
 })
