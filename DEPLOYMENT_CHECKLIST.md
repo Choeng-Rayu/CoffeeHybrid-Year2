@@ -9,7 +9,7 @@
 - [ ] Environment example files created
 
 ### 2. External Services Setup
-- [ ] MongoDB database ready (Atlas or DO Managed)
+- [ ] MySQL database ready (Digital Ocean Managed or external)
 - [ ] Telegram Bot Token obtained from @BotFather
 - [ ] Google OAuth credentials configured
 - [ ] Gmail App Password generated
@@ -111,7 +111,11 @@
 ```
 NODE_ENV=production
 PORT=5000
-MONGODB_URI=your-mongodb-connection
+DB_HOST=your-mysql-host.db.ondigitalocean.com
+DB_PORT=25060
+DB_NAME=your-database-name
+DB_USER=your-database-username
+DB_PASSWORD=your-database-password
 JWT_SECRET=your-jwt-secret
 EMAIL_USER=your-email@gmail.com
 EMAIL_PASS=your-app-password
@@ -151,9 +155,10 @@ WEBHOOK_URL=https://bot-url/webhook
 3. Ensure all required services are running
 
 ### Database Connection Failed
-1. Verify MongoDB URI
-2. Check IP whitelist
+1. Verify MySQL connection details
+2. Check IP whitelist for Digital Ocean ranges
 3. Test connection string locally
+4. Ensure MySQL service is running
 
 ### Bot Not Responding
 1. Verify BOT_TOKEN
@@ -164,8 +169,8 @@ WEBHOOK_URL=https://bot-url/webhook
 - Backend Service: $5/month
 - Frontend Service: $5/month
 - Bot Service: $5/month
-- MongoDB (DO): $5/month
-- **Total: ~$20/month**
+- MySQL Database (DO): $15/month
+- **Total: ~$30/month**
 
 ---
 **Status**: Ready for deployment! 🚀

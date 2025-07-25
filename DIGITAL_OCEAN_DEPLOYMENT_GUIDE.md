@@ -9,7 +9,7 @@ This guide will help you deploy your CoffeeHybrid project (Backend, Frontend, an
 3. 📧 Gmail account for email functionality
 4. 🤖 Telegram Bot Token from @BotFather
 5. ☁️ Cloudinary account for image storage (optional but recommended)
-6. 🔐 MongoDB Atlas account for database (recommended) or use DO Managed MongoDB
+6. �️ MySQL database (Digital Ocean Managed MySQL recommended)
 
 ## Step 1: Prepare Your GitHub Repository
 
@@ -30,21 +30,28 @@ Make sure your repository has:
 
 ## Step 2: Set Up External Services
 
-### 2.1 MongoDB Database
-**Option A: Digital Ocean Managed MongoDB (Recommended)**
+### 2.1 MySQL Database
+**Option A: Digital Ocean Managed MySQL (Recommended)**
 1. Go to Digital Ocean Dashboard
 2. Click "Databases" → "Create Database"
-3. Choose MongoDB 6.x
+3. Choose MySQL 8.x
 4. Select your preferred region
-5. Choose "Basic" plan for development
-6. Note the connection string
+5. Choose "Basic" plan for development ($5/month)
+6. Note the connection details:
+   - Host
+   - Port (usually 25060)
+   - Database name
+   - Username
+   - Password
+7. Copy the connection string
 
-**Option B: MongoDB Atlas (Free Option)**
-1. Go to mongodb.com/atlas
-2. Create free cluster
-3. Set up database user
-4. Whitelist all IPs (0.0.0.0/0) for production
-5. Get connection string
+**📖 For detailed MySQL setup instructions, see: [MYSQL_SETUP_GUIDE.md](MYSQL_SETUP_GUIDE.md)**
+
+**Option B: External MySQL Provider**
+1. Use services like PlanetScale, AWS RDS, or Google Cloud SQL
+2. Create MySQL database
+3. Configure firewall to allow Digital Ocean IP ranges
+4. Get connection string
 
 ### 2.2 Telegram Bot Setup
 1. Message @BotFather on Telegram
@@ -113,7 +120,11 @@ Make sure your repository has:
 ```
 NODE_ENV=production
 PORT=5000
-MONGODB_URI=your-mongodb-connection-string
+DB_HOST=your-mysql-host
+DB_PORT=25060
+DB_NAME=your-database-name
+DB_USER=your-database-username
+DB_PASSWORD=your-database-password
 JWT_SECRET=your-super-secret-jwt-key-minimum-32-characters
 EMAIL_USER=your-gmail@gmail.com
 EMAIL_PASS=your-gmail-app-password
@@ -217,9 +228,10 @@ Should load the coffee ordering interface
 - Ensure sensitive data is properly formatted
 
 ### 3. Database Connection Issues
-- Verify MongoDB connection string
-- Check if IP is whitelisted (for Atlas)
+- Verify MySQL connection details
+- Check if Digital Ocean IP ranges are whitelisted
 - Test connection from local environment first
+- Ensure MySQL server is running and accessible
 
 ### 4. Bot Not Responding
 - Verify BOT_TOKEN is correct
@@ -236,8 +248,8 @@ Should load the coffee ordering interface
 - Backend Service: $5/month
 - Frontend Service: $5/month  
 - Bot Service: $5/month
-- MongoDB (if using DO): $5/month
-- **Total: ~$20/month**
+- MySQL Database (if using DO): $15/month
+- **Total: ~$30/month**
 
 ## Support and Updates
 
