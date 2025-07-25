@@ -12,6 +12,7 @@ const Login = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [activeField, setActiveField] = useState(null);
 
   const { login } = useUser();
   const navigate = useNavigate();
@@ -74,6 +75,14 @@ const Login = () => {
     setError(''); // Clear error when user types
   };
 
+  const handleFocus = (fieldName) => {
+    setActiveField(fieldName);
+  };
+
+  const handleBlur = () => {
+    setActiveField(null);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -92,12 +101,21 @@ const Login = () => {
 
   return (
     <div className={styles.loginContainer}>
+      <div className={styles.backgroundAnimation}></div>
       <div className={styles.loginCard}>
+        <div className={styles.logoContainer}>
+          <div className={styles.logoCup}></div>
+          <h1 className={styles.logoText}>CoffeeHybrid</h1>
+        </div>
+        
         <h2 className={styles.title}>Welcome Back</h2>
         <p className={styles.subtitle}>Sign in to your account</p>
 
         {error && (
           <div className={styles.error}>
+            <svg className={styles.errorIcon} viewBox="0 0 24 24">
+              <path fill="currentColor" d="M11,15H13V17H11V15M11,7H13V13H11V7M12,2C6.47,2 2,6.5 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20Z" />
+            </svg>
             {error}
           </div>
         )}
@@ -123,7 +141,7 @@ const Login = () => {
         </div>
 
         <form onSubmit={handleSubmit} className={styles.form}>
-          <div className={styles.inputGroup}>
+          <div className={`${styles.inputGroup} ${activeField === 'emailOrUsername' ? styles.active : ''}`}>
             <label htmlFor="emailOrUsername" className={styles.label}>
               Email or Username
             </label>
@@ -133,13 +151,16 @@ const Login = () => {
               name="emailOrUsername"
               value={formData.emailOrUsername}
               onChange={handleChange}
+              onFocus={() => handleFocus('emailOrUsername')}
+              onBlur={handleBlur}
               className={styles.input}
               required
               placeholder="Enter your email or username"
             />
+            <div className={styles.inputUnderline}></div>
           </div>
 
-          <div className={styles.inputGroup}>
+          <div className={`${styles.inputGroup} ${activeField === 'password' ? styles.active : ''}`}>
             <label htmlFor="password" className={styles.label}>
               Password
             </label>
@@ -149,10 +170,13 @@ const Login = () => {
               name="password"
               value={formData.password}
               onChange={handleChange}
+              onFocus={() => handleFocus('password')}
+              onBlur={handleBlur}
               className={styles.input}
               required
               placeholder="Enter your password"
             />
+            <div className={styles.inputUnderline}></div>
           </div>
 
           <div className={styles.forgotPasswordLink}>
@@ -166,7 +190,16 @@ const Login = () => {
             className={styles.submitBtn}
             disabled={isLoading}
           >
-            {isLoading ? 'Signing In...' : 'Sign In'}
+            {isLoading ? (
+              <span className={styles.spinner}></span>
+            ) : (
+              <>
+                Sign In
+                <svg className={styles.arrowIcon} viewBox="0 0 24 24">
+                  <path fill="currentColor" d="M4,11V13H16L10.5,18.5L11.92,19.92L19.84,12L11.92,4.08L10.5,5.5L16,11H4Z" />
+                </svg>
+              </>
+            )}
           </button>
         </form>
 
