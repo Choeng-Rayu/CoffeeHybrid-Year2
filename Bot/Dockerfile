@@ -9,4 +9,4 @@ RUN npm install --production
 # Copy bot source code
 COPY Bot/ ./
 
-CMD ["node", "bot.js"]
+CMD ["node", "bot-new.js"]

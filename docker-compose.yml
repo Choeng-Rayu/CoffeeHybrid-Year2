@@ -10,9 +10,20 @@ services:
     ports:
       - "5000:5000"
     environment:
-      - MONGODB_URI=${MONGODB_URI}
       - NODE_ENV=production
       - PORT=5000
+      - MONGODB_URI=${MONGODB_URI}
+      - JWT_SECRET=${JWT_SECRET}
+      - EMAIL_USER=${EMAIL_USER}
+      - EMAIL_PASS=${EMAIL_PASS}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - GOOGLE_CALLBACK_URL=${GOOGLE_CALLBACK_URL}
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+      - FRONTEND_URL=${FRONTEND_URL}
+      - SESSION_SECRET=${SESSION_SECRET}
     networks:
       - coffee-net
 
@@ -24,6 +35,8 @@ services:
     restart: always
     ports:
       - "80:80"
+    environment:
+      - VITE_API_BASE_URL=${BACKEND_URL}/api
     depends_on:
       - backend
     networks:
@@ -36,9 +49,10 @@ services:
     container_name: coffeehybrid-bot
     restart: always
     environment:
+      - NODE_ENV=production
       - BOT_TOKEN=${BOT_TOKEN}
-      - API_BASE_URL=http://backend:5000/api
-      - WEBHOOK_URL=${WEBHOOK_URL}
+      - API_BASE_URL=${BACKEND_URL}/api
+      - WEBHOOK_URL=${BOT_WEBHOOK_URL}
     depends_on:
       - backend
     networks:

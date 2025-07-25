@@ -20,6 +20,7 @@ class HostingDetector {
     if (window.location.hostname.includes('railway.app')) return 'railway';
     if (window.location.hostname.includes('herokuapp.com')) return 'heroku';
     if (window.location.hostname.includes('appspot.com')) return 'google-cloud';
+    if (window.location.hostname.includes('ondigitalocean.app')) return 'digital-ocean';
     if (window.location.hostname.includes('ngrok.io')) return 'ngrok';
     
     // Check for localhost variations
@@ -62,9 +63,15 @@ class HostingDetector {
    */
   getApiUrl() {
     // Check environment variables first
-    const envApiUrl = import.meta.env.VITE_API_URL;
+    const envApiUrl = import.meta.env.VITE_API_BASE_URL;
     if (envApiUrl) {
       return envApiUrl.replace('/api', ''); // Remove /api suffix if present
+    }
+
+    // Legacy support for VITE_API_URL
+    const legacyApiUrl = import.meta.env.VITE_API_URL;
+    if (legacyApiUrl) {
+      return legacyApiUrl.replace('/api', '');
     }
 
     // Auto-detect based on hosting environment
@@ -77,6 +84,11 @@ class HostingDetector {
         // Netlify hosting with external API
         return import.meta.env.VITE_API_URL?.replace('/api', '') ||
                'https://coffeehybrid.onrender.com';
+
+      case 'digital-ocean':
+        // Digital Ocean App Platform - use environment variable or auto-detect
+        return import.meta.env.VITE_API_BASE_URL?.replace('/api', '') ||
+               this.getDigitalOceanBackendUrl();
         
       case 'render':
         // Render backend service (replace with your actual backend URL)
@@ -111,6 +123,32 @@ class HostingDetector {
         // Custom domain - assume API is on same domain with /api path
         return window.location.origin;
     }
+  }
+
+  /**
+   * Auto-detect Digital Ocean backend URL
+   * Digital Ocean App Platform typically follows predictable naming
+   */
+  getDigitalOceanBackendUrl() {
+    const hostname = window.location.hostname;
+    
+    // Try to extract app name from frontend URL and construct backend URL
+    if (hostname.includes('ondigitalocean.app')) {
+      // If frontend is: coffeehybrid-frontend-xxxxx.ondigitalocean.app
+      // Backend might be: coffeehybrid-backend-xxxxx.ondigitalocean.app
+      const parts = hostname.split('-');
+      if (parts.length >= 3 && parts[1] === 'frontend') {
+        const backendHostname = hostname.replace('-frontend-', '-backend-');
+        return `https://${backendHostname}`;
+      }
+      
+      // Fallback: try common naming patterns
+      const appPrefix = parts[0]; // e.g., 'coffeehybrid'
+      return `https://${appPrefix}-backend.ondigitalocean.app`;
+    }
+    
+    // Fallback to localhost for development
+    return 'http://localhost:5000';
   }
 
   /**
