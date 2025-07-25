@@ -1,80 +1,115 @@
+/* Login.module.css */
 .loginContainer {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 2rem;
-  background: linear-gradient(135deg, #8B4513 0%, #D2691E 50%, #CD853F 100%);
+  background: linear-gradient(135deg, #3a1c0e 0%, #8B4513 50%, #D2691E 100%);
   position: relative;
+  overflow: hidden;
+  font-family: 'Poppins', sans-serif;
+}
+
+.backgroundAnimation {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(circle at 20% 30%, rgba(255, 215, 0, 0.1) 0%, transparent 20%),
+    radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.1) 0%, transparent 20%);
+  animation: float 15s ease-in-out infinite alternate;
+}
+
+@keyframes float {
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(-20px, -20px); }
+  100% { transform: translate(20px, 20px); }
+}
+
+.loginCard {
+  background: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(12px);
+  padding: 3rem;
+  border-radius: 24px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+  width: 100%;
+  max-width: 450px;
+  position: relative;
+  z-index: 1;
+  animation: slideInUp 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   overflow: hidden;
 }
 
-.loginContainer::before {
+.loginCard::before {
   content: '';
   position: absolute;
   top: -50%;
   left: -50%;
   width: 200%;
   height: 200%;
-  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="rgba(255,255,255,0.1)"/></svg>') repeat;
-  animation: float 20s ease-in-out infinite;
+  background: linear-gradient(
+    to bottom right,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: rotate(30deg);
+  animation: shine 3s infinite;
 }
 
-@keyframes float {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(-20px) rotate(180deg); }
+@keyframes shine {
+  0% { transform: translateX(-100%) rotate(30deg); }
+  100% { transform: translateX(100%) rotate(30deg); }
 }
 
-.loginCard {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  padding: 3rem;
-  border-radius: 20px;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
-  width: 100%;
-  max-width: 450px;
+.logoContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.logoCup {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #8B4513 0%, #D2691E 100%);
+  border-radius: 50% 50% 0 0;
   position: relative;
-  z-index: 1;
-  animation: slideInUp 0.8s ease-out;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  margin-right: 10px;
 }
 
-@keyframes slideInUp {
-  from {
-    opacity: 0;
-    transform: translateY(50px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.logoCup::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 5px;
+  width: 30px;
+  height: 5px;
+  background: #8B4513;
+  border-radius: 0 0 5px 5px;
 }
 
-.title {
-  font-size: 2.5rem;
+.logoText {
+  font-size: 1.8rem;
   font-weight: 700;
   background: linear-gradient(135deg, #8B4513 0%, #D2691E 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  margin: 0;
+}
+
+.title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #3a1c0e;
   text-align: center;
   margin-bottom: 0.5rem;
   position: relative;
-}
-
-.title::after {
-  content: '☕';
-  position: absolute;
-  top: -10px;
-  right: -30px;
-  font-size: 1.5rem;
-  animation: bounce 2s infinite;
-}
-
-@keyframes bounce {
-  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-  40% { transform: translateY(-10px); }
-  60% { transform: translateY(-5px); }
 }
 
 .subtitle {
@@ -95,6 +130,15 @@
   border: none;
   box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
   animation: shake 0.5s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.errorIcon {
+  width: 20px;
+  height: 20px;
 }
 
 @keyframes shake {
@@ -113,11 +157,19 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  position: relative;
 }
 
 .label {
   font-weight: 500;
-  color: #333;
+  color: #555;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+}
+
+.inputGroup.active .label {
+  color: #8B4513;
+  transform: translateY(-2px);
 }
 
 .input {
@@ -128,6 +180,7 @@
   transition: all 0.3s ease;
   background: rgba(255, 255, 255, 0.9);
   position: relative;
+  z-index: 1;
 }
 
 .input:focus {
@@ -135,7 +188,20 @@
   border-color: #8B4513;
   box-shadow: 0 0 0 3px rgba(139, 69, 19, 0.1);
   background: white;
-  transform: translateY(-2px);
+}
+
+.inputUnderline {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(135deg, #8B4513 0%, #D2691E 100%);
+  transition: width 0.3s ease;
+}
+
+.inputGroup.active .inputUnderline {
+  width: 100%;
 }
 
 .submitBtn {
@@ -151,6 +217,10 @@
   margin-top: 1rem;
   position: relative;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 .submitBtn::before {
@@ -179,6 +249,29 @@
   opacity: 0.6;
   transform: none;
   box-shadow: none;
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.arrowIcon {
+  width: 20px;
+  height: 20px;
+  transition: transform 0.3s ease;
+}
+
+.submitBtn:hover .arrowIcon {
+  transform: translateX(3px);
 }
 
 .googleBtn {
@@ -251,12 +344,14 @@
   left: 0;
   right: 0;
   height: 1px;
-  background: #ddd;
+  background: linear-gradient(to right, transparent, #ddd, transparent);
 }
 
 .divider span {
   background: white;
   padding: 0 1rem;
+  position: relative;
+  z-index: 1;
 }
 
 .footer {
@@ -267,13 +362,30 @@
 }
 
 .link {
-  color: #d4a574;
+  color: #8B4513;
   text-decoration: none;
-  font-weight: 500;
+  font-weight: 600;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.link::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: -2px;
+  left: 0;
+  background: linear-gradient(135deg, #8B4513 0%, #D2691E 100%);
+  transition: width 0.3s ease;
 }
 
 .link:hover {
-  text-decoration: underline;
+  color: #D2691E;
+}
+
+.link:hover::after {
+  width: 100%;
 }
 
 .forgotPasswordLink {
@@ -304,7 +416,6 @@
 
 .forgotLink:hover {
   color: #D2691E;
-  transform: translateY(-1px);
 }
 
 .forgotLink:hover::after {
@@ -325,9 +436,16 @@
   .title {
     font-size: 2rem;
   }
+}
 
-  .title::after {
-    right: -20px;
-    font-size: 1.2rem;
+/* Floating animation for the login card */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
