@@ -1,5 +1,5 @@
-# Stage 1: Build the React application
-FROM node:18-alpine AS build
+FROM node:18-alpine
+
 WORKDIR /usr/src/app
 
 # Copy package files and install dependencies
@@ -13,12 +13,8 @@ COPY . ./
 # Build the application
 RUN npm run build
 
-# Stage 2: Serve the static files with Nginx
-FROM nginx:stable-alpine
-COPY --from=build /usr/src/app/dist /usr/share/nginx/html
+# Expose port for Digital Ocean App Platform
+EXPOSE 8080
 
-# Copy the nginx configuration
-COPY Frontend/nginx.conf /etc/nginx/conf.d/default.conf
-
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+# Serve the built app using Vite preview
+CMD ["npm", "run", "preview", "--", "--host", "0.0.0.0", "--port", "8080"]
