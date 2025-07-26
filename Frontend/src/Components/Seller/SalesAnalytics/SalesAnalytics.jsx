@@ -238,7 +238,7 @@ const SalesAnalytics = () => {
               </thead>
               <tbody>
                 {productPerformance.slice(0, 10).map((product, index) => (
-                  <tr key={product._id}>
+                  <tr key={product.id || product._id}>
                     <td className={styles.rank}>
                       {index + 1}
                       {index === 0 && <span className={styles.crown}>👑</span>}

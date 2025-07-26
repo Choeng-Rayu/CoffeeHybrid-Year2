@@ -48,7 +48,7 @@ const ProductList = ({ products, onProductUpdated }) => {
     setError('');
 
     try {
-      await adminAPI.updateProduct(product._id, {
+      await adminAPI.updateProduct(product.id, {
         available: !product.available,
         userId: user.id
       });
@@ -97,7 +97,7 @@ const ProductList = ({ products, onProductUpdated }) => {
       ) : (
         <div className={styles.productsGrid}>
           {products.map(product => (
-            <div key={product._id} className={styles.productCard}>
+            <div key={product.id} className={styles.productCard}>
               <div className={styles.productHeader}>
                 <h4 className={styles.productName}>{product.name}</h4>
                 <div className={styles.productStatus}>
@@ -170,7 +170,7 @@ const ProductList = ({ products, onProductUpdated }) => {
                 </button>
                 
                 <button
-                  onClick={() => handleDelete(product._id)}
+                  onClick={() => handleDelete(product.id)}
                   className={styles.deleteBtn}
                   disabled={isLoading}
                 >

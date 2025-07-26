@@ -96,7 +96,7 @@ const ProductForm = ({ onProductAdded, editProduct = null }) => {
       };
 
       if (editProduct) {
-        await adminAPI.updateProduct(editProduct._id, productData);
+        await adminAPI.updateProduct(editProduct.id, productData);
         setSuccess('Product updated successfully!');
       } else {
         await adminAPI.addProduct(productData);
