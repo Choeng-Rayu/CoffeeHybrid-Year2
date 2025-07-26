@@ -80,7 +80,12 @@ export const securityHeaders = helmet({
 export const validateJWT = (req, res, next) => {
   const token = req.header('Authorization')?.replace('Bearer ', '');
 
+  console.log('🔍 JWT Validation Debug:');
+  console.log('   Token exists:', !!token);
+  console.log('   Token preview:', token ? token.substring(0, 20) + '...' : 'none');
+
   if (!token) {
+    console.log('❌ No token provided');
     return res.status(401).json({
       success: false,
       message: 'Access denied. No token provided.'
@@ -89,9 +94,15 @@ export const validateJWT = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log('✅ Token decoded successfully:');
+    console.log('   User ID:', decoded.userId);
+    console.log('   Email:', decoded.email);
+    console.log('   Role:', decoded.role);
+
     req.user = decoded;
     next();
   } catch (error) {
+    console.log('❌ Token validation failed:', error.message);
     res.status(400).json({
       success: false,
       message: 'Invalid token.'

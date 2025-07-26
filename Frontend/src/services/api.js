@@ -280,6 +280,36 @@ export const adminAPI = {
   }
 };
 
+// Super Admin API calls
+export const superAdminAPI = {
+  getDashboard: async () => {
+    const response = await api.get('/super-admin/dashboard');
+    return response.data;
+  },
+
+  getAllSellers: async (params = {}) => {
+    const response = await api.get('/super-admin/sellers', { params });
+    return response.data;
+  },
+
+  createSeller: async (sellerData) => {
+    const response = await api.post('/super-admin/sellers', sellerData);
+    return response.data;
+  },
+
+  getAllOrders: async (params = {}) => {
+    const response = await api.get('/super-admin/orders', { params });
+    return response.data;
+  },
+
+  toggleSellerStatus: async (sellerId, isBlocked) => {
+    const response = await api.patch(`/super-admin/sellers/${sellerId}/toggle-status`, {
+      isBlocked
+    });
+    return response.data;
+  }
+};
+
 // Health check
 export const healthCheck = async () => {
   const response = await api.get('/health');

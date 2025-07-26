@@ -55,7 +55,18 @@ const Navbar = () => {
 
           {isAuthenticated ? (
             <>
-              {(user.role === 'seller' || user.role === 'admin') ? (
+              {user.role === 'admin' ? (
+                <>
+                  <Link to="/super-admin" className={styles.navLink} onClick={() => setMenuOpen(false)}>
+                    <FaUserShield className={styles.navIcon} />
+                    <span className={styles.linkText}>Super Admin</span>
+                  </Link>
+                  <Link to="/admin/dashboard" className={styles.navLink} onClick={() => setMenuOpen(false)}>
+                    <FaUserShield className={styles.navIcon} />
+                    <span className={styles.linkText}>Seller Dashboard</span>
+                  </Link>
+                </>
+              ) : user.role === 'seller' ? (
                 <Link to="/admin/dashboard" className={styles.navLink} onClick={() => setMenuOpen(false)}>
                   <FaUserShield className={styles.navIcon} />
                   <span className={styles.linkText}>Dashboard</span>

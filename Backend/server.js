@@ -22,6 +22,7 @@ import menuRoutes from './routes/menu.js';
 import orderRoutes from './routes/orders.js';
 import cartRoutes from './routes/cart.js';
 import adminRoutes from './routes/admin.js';
+import superAdminRoutes from './routes/superAdmin.js';
 import googleAuthRoutes from './routes/googleAuth.js';
 
 dotenv.config();
@@ -108,6 +109,7 @@ app.use('/api/menu', menuRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/super-admin', superAdminRoutes);
 
 app.get('/api/health', (req, res) => {
   const healthMetrics = getHealthMetrics();

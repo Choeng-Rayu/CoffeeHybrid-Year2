@@ -17,6 +17,9 @@ import QRVerification from './Components/Pages/QRVerification/QRVerification';
 import StaffQRScanner from './Components/Pages/StaffQRScanner/StaffQRScanner';
 import AdminLogin from './Components/Admin/AdminLogin/AdminLogin';
 import AdminDashboard from './Components/Admin/AdminDashboard/AdminDashboard';
+import SuperAdminDashboard from './Components/SuperAdmin/SuperAdminDashboard/SuperAdminDashboard';
+import SellersManagement from './Components/SuperAdmin/SellersManagement/SellersManagement';
+import CreateSeller from './Components/SuperAdmin/CreateSeller/CreateSeller';
 
 // Context for user authentication
 import { UserProvider } from './context/UserContext';
@@ -44,6 +47,9 @@ function App() {
                 <Route path="/staff/scanner" element={<StaffQRScanner />} />
                 <Route path="/admin/login" element={<AdminLogin />} />
                 <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                <Route path="/super-admin" element={<SuperAdminDashboard />} />
+                <Route path="/super-admin/sellers" element={<SellersManagement />} />
+                <Route path="/super-admin/create-seller" element={<CreateSeller />} />
               </Routes>
             </main>
           </div>
