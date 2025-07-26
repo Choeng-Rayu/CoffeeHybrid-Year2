@@ -42,7 +42,7 @@ A comprehensive coffee ordering system with both web application and Telegram bo
 
 ### Backend
 - **Node.js** with Express
-- **MongoDB** with Mongoose
+- **MySQL** with Sequelize ORM
 - **UUID** for unique tokens
 - **qr-image** for server-side QR generation
 
@@ -52,8 +52,8 @@ A comprehensive coffee ordering system with both web application and Telegram bo
 - **Session management** for user state
 
 ### Hosting
-- **Render.com** for all services
-- **MongoDB Atlas** for database
+- **Digital Ocean App Platform** for all services
+- **Aiven MySQL** for database
 
 ## 🚀 Quick Start
 
