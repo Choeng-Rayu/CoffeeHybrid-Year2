@@ -1,5 +1,4 @@
-# Build stage
-FROM node:18-alpine AS builder
+FROM node:18-alpine
 
 WORKDIR /usr/src/app
 
@@ -14,33 +13,19 @@ COPY . ./
 # Build the application for production
 RUN npm run build
 
-# Production stage
-FROM nginx:alpine
+# Install serve to serve static files
+RUN npm install -g serve
 
-# Copy built assets from builder stage
-COPY --from=builder /usr/src/app/dist /usr/share/nginx/html
+# Create a non-root user
+RUN addgroup -g 1001 -S appuser && \
+    adduser -S appuser -u 1001 -G appuser
 
-# Copy nginx configuration
-COPY nginx.conf /etc/nginx/nginx.conf
+# Change ownership of the app directory
+RUN chown -R appuser:appuser /usr/src/app
 
-# Install wget for health check (must be done as root before switching user)
-RUN apk add --no-cache wget
+USER appuser
 
-# Use existing nginx user (nginx:alpine already has nginx user)
-# Change ownership of nginx directories to existing nginx user
-RUN chown -R nginx:nginx /var/cache/nginx && \
-    chown -R nginx:nginx /var/log/nginx && \
-    chown -R nginx:nginx /etc/nginx/conf.d && \
-    chown -R nginx:nginx /usr/share/nginx/html
-RUN touch /var/run/nginx.pid && \
-    chown -R nginx:nginx /var/run/nginx.pid
+EXPOSE 3000
 
-USER nginx
-
-EXPOSE 80
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:80/ || exit 1
-
-CMD ["nginx", "-g", "daemon off;"]
+# Serve the built application
+CMD ["serve", "-s", "dist", "-l", "3000"]

@@ -50,7 +50,7 @@ services:
   routes:
   - path: /api
 
-# Frontend Service - React Static Site
+# Frontend Service - React App with Node.js serve
 - name: frontend
   source_dir: Frontend
   github:
@@ -62,7 +62,7 @@ services:
     value: https://hybridcoffee-za9sy.ondigitalocean.app/api
   - key: NODE_ENV
     value: production
-  http_port: 80
+  http_port: 3000
   instance_size_slug: basic-xxs
   instance_count: 1
   routes:
