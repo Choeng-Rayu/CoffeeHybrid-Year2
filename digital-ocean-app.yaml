@@ -3,7 +3,7 @@ services:
 - name: backend
   source_dir: Backend
   github:
-    repo: YOUR_GITHUB_USERNAME/CoffeeHybrid-Year2
+    repo: choengrayu233/CoffeeHybrid
     branch: main
   dockerfile_path: Backend/Dockerfile
   env_vars:
@@ -37,6 +37,16 @@ services:
     value: ${CLOUDINARY_API_KEY}
   - key: CLOUDINARY_API_SECRET
     value: ${CLOUDINARY_API_SECRET}
+  - key: GMAIL_USER
+    value: ${GMAIL_USER}
+  - key: GMAIL_APP_PASSWORD
+    value: ${GMAIL_APP_PASSWORD}
+  - key: SESSION_SECRET
+    value: ${SESSION_SECRET}
+  - key: DB_DIALECT
+    value: mysql
+  - key: MOCK_EMAIL
+    value: "false"
   http_port: 5000
   instance_size_slug: basic-xxs
   instance_count: 1
@@ -44,7 +54,7 @@ services:
 - name: frontend
   source_dir: Frontend
   github:
-    repo: YOUR_GITHUB_USERNAME/CoffeeHybrid-Year2
+    repo: choengrayu233/CoffeeHybrid
     branch: main
   dockerfile_path: Frontend/Dockerfile
   env_vars:
@@ -57,7 +67,7 @@ services:
 - name: bot
   source_dir: Bot
   github:
-    repo: YOUR_GITHUB_USERNAME/CoffeeHybrid-Year2
+    repo: choengrayu233/CoffeeHybrid
     branch: main
   dockerfile_path: Bot/Dockerfile
   env_vars:
