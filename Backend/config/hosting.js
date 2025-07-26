@@ -127,6 +127,8 @@ class HostingManager {
     const origins = [
       'http://localhost:3000',
       'http://localhost:5173',
+      'http://localhost:8080',
+      'http://localhost:8081',
       'https://hybridcoffee.netlify.app',  // Your specific Netlify URL
       'https://coffeehybrid.onrender.com'  // Your Render URL
     ];

@@ -31,13 +31,32 @@ const sequelize = new Sequelize(
         rejectUnauthorized: true
       }
     },
-    logging: false, // disable logging for cleaner output
+    logging: process.env.NODE_ENV === 'development' ? console.log : false,
     pool: {
-      max: 5,
-      min: 0,
-      acquire: 30000,
-      idle: 10000
-    }
+      max: 10, // Increased connection pool size
+      min: 2,  // Maintain minimum connections
+      acquire: 60000, // Increased acquire timeout
+      idle: 30000,    // Increased idle timeout
+      evict: 1000,    // Check for idle connections every second
+      handleDisconnects: true
+    },
+    retry: {
+      match: [
+        /ETIMEDOUT/,
+        /EHOSTUNREACH/,
+        /ECONNRESET/,
+        /ECONNREFUSED/,
+        /ETIMEDOUT/,
+        /ESOCKETTIMEDOUT/,
+        /EHOSTUNREACH/,
+        /EPIPE/,
+        /EAI_AGAIN/,
+        /ER_LOCK_WAIT_TIMEOUT/,
+        /ER_LOCK_DEADLOCK/
+      ],
+      max: 3
+    },
+    benchmark: process.env.NODE_ENV === 'development'
   }
 );
 

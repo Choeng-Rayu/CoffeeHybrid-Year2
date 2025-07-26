@@ -14,7 +14,7 @@ export const googleAuth = (req, res, next) => {
   if (!isGoogleConfigured()) {
     const frontendUrl = process.env.NODE_ENV === 'production'
       ? (process.env.FRONTEND_URL || process.env.CLIENT_URL || 'https://hybridcoffee.netlify.app')
-      : (process.env.CLIENT_URL || 'http://localhost:5173');
+      : (process.env.CLIENT_URL || 'http://localhost:8081');
     return res.redirect(`${frontendUrl}/login?error=oauth_not_configured`);
   }
   passport.authenticate('google', { scope: ['profile', 'email'] })(req, res, next);
@@ -25,13 +25,13 @@ export const googleCallback = [
     if (!isGoogleConfigured()) {
       const frontendUrl = process.env.NODE_ENV === 'production'
         ? (process.env.FRONTEND_URL || process.env.CLIENT_URL || 'https://hybridcoffee.netlify.app')
-        : (process.env.CLIENT_URL || 'http://localhost:5173');
+        : (process.env.CLIENT_URL || 'http://localhost:8081');
       return res.redirect(`${frontendUrl}/login?error=oauth_not_configured`);
     }
     passport.authenticate('google', {
       failureRedirect: (process.env.NODE_ENV === 'production'
         ? (process.env.FRONTEND_URL || process.env.CLIENT_URL || 'https://hybridcoffee.netlify.app')
-        : (process.env.CLIENT_URL || 'http://localhost:5173')) + '/login?error=oauth_failed',
+        : (process.env.CLIENT_URL || 'http://localhost:8081')) + '/login?error=oauth_failed',
       session: false
     })(req, res, next);
   },
@@ -58,12 +58,12 @@ export const googleCallback = [
       if (process.env.NODE_ENV === 'production') {
         frontendUrl = process.env.FRONTEND_URL || process.env.CLIENT_URL || 'https://hybridcoffee.netlify.app';
       } else {
-        frontendUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+        frontendUrl = process.env.CLIENT_URL || 'http://localhost:8081';
       }
       const redirectUrl = `${frontendUrl}/auth/callback?token=${token}&user=${encodeURIComponent(JSON.stringify(userData))}`;
       res.redirect(redirectUrl);
     } catch (error) {
-      res.redirect(`${process.env.CLIENT_URL || 'http://localhost:3000'}/login?error=callback_failed`);
+      res.redirect(`${process.env.CLIENT_URL || 'http://localhost:8081'}/login?error=callback_failed`);
     }
   }
 ];
@@ -102,9 +102,15 @@ export const googleVerify = async (req, res, next) => {
         });
       }
     }
+    // Ensure JWT_SECRET is set
+    if (!process.env.JWT_SECRET) {
+      console.error('JWT_SECRET is not set in environment variables');
+      return res.status(500).json({ success: false, error: 'Server configuration error' });
+    }
+
     const token = jwt.sign(
       { userId: user.id, email: user.email, role: user.role },
-      process.env.JWT_SECRET || 'fallback_secret',
+      process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
     res.json({

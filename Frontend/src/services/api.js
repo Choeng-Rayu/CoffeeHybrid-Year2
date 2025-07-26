@@ -2,12 +2,27 @@ import axios from 'axios';
 import hostingDetector from '../utils/hostingDetector.js';
 
 // Use hosting detector to get the correct API URL
-const API_BASE_URL = hostingDetector.config.apiBaseUrl;
+let API_BASE_URL = hostingDetector.config.apiBaseUrl;
+
+// Override for development if needed
+if (window.location.hostname === 'localhost' && window.location.port === '8081') {
+  API_BASE_URL = 'http://localhost:5000/api';
+  console.log('🔧 Using development override for API URL:', API_BASE_URL);
+}
 
 console.log('🌐 API Configuration:', {
   environment: hostingDetector.environment,
   apiBaseUrl: API_BASE_URL,
   isProduction: hostingDetector.config.isProduction,
+});
+
+// Debug: Log the actual URLs being used
+console.log('🔍 Debug API URLs:', {
+  apiUrl: hostingDetector.config.apiUrl,
+  apiBaseUrl: hostingDetector.config.apiBaseUrl,
+  authUrl: hostingDetector.config.authUrl,
+  registerUrl: `${API_BASE_URL}/auth/register`,
+  loginUrl: `${API_BASE_URL}/auth/login`
 });
 
 const api = axios.create({
@@ -18,19 +33,46 @@ const api = axios.create({
   },
 });
 
-// Add request interceptor to include auth token
+// Add request interceptor to include auth token and debug
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+
+  // Debug: Log all outgoing requests
+  console.log('📤 Outgoing API request:', {
+    method: config.method?.toUpperCase(),
+    url: config.url,
+    baseURL: config.baseURL,
+    fullUrl: `${config.baseURL}${config.url}`,
+    headers: config.headers,
+    data: config.data
+  });
+
   return config;
 });
 
 // Add response interceptor for error handling
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log('✅ API Response:', {
+      status: response.status,
+      url: response.config.url,
+      data: response.data
+    });
+    return response;
+  },
   (error) => {
+    console.error('❌ API Error Details:', {
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      url: error.config?.url,
+      method: error.config?.method,
+      data: error.response?.data,
+      message: error.message
+    });
+
     if (error.response?.status === 401) {
       // Token expired or invalid
       localStorage.removeItem('token');
@@ -44,6 +86,12 @@ api.interceptors.response.use(
 // Auth API calls
 export const authAPI = {
   register: async (userData) => {
+    console.log('🔍 Register API call:', {
+      baseURL: api.defaults.baseURL,
+      url: '/auth/register',
+      fullUrl: `${api.defaults.baseURL}/auth/register`,
+      userData
+    });
     const response = await api.post('/auth/register', userData);
     return response.data;
   },

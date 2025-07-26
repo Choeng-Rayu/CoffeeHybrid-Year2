@@ -2,6 +2,8 @@
 import { User } from '../models/index.js';
 import { Op } from 'sequelize';
 import crypto from 'crypto';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import { sendPasswordResetEmail } from '../services/emailService.js';
 
 /**
@@ -59,6 +61,16 @@ import { sendPasswordResetEmail } from '../services/emailService.js';
 export const register = async (req, res, next) => {
   try {
     const { username, email, password } = req.body;
+
+    // Input validation
+    if (!username || !email || !password) {
+      return res.status(400).json({ error: 'Username, email, and password are required' });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters long' });
+    }
+
     const existingUser = await User.findOne({
       where: {
         [Op.or]: [{ email }, { username }]
@@ -67,10 +79,20 @@ export const register = async (req, res, next) => {
     if (existingUser) {
       return res.status(400).json({ error: 'User with this email or username already exists' });
     }
-    const user = await User.create({ username, email, password });
+
+    // Hash password before storing
+    const saltRounds = 12;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+    const user = await User.create({
+      username,
+      email,
+      password: hashedPassword
+    });
+
     res.status(201).json({
       message: 'User registered successfully',
-      user: { id: user.id, username: user.username, email: user.email }
+      user: { id: user.id, username: user.username, email: user.email, role: user.role }
     });
   } catch (error) {
     next(error);
@@ -80,6 +102,12 @@ export const register = async (req, res, next) => {
 export const login = async (req, res, next) => {
   try {
     const { emailOrUsername, password } = req.body;
+
+    // Input validation
+    if (!emailOrUsername || !password) {
+      return res.status(400).json({ error: 'Email/username and password are required' });
+    }
+
     const user = await User.findOne({
       where: {
         [Op.or]: [
@@ -88,14 +116,41 @@ export const login = async (req, res, next) => {
         ]
       }
     });
-    if (!user || user.password !== password) {
+
+    if (!user) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
+
+    // Compare password with hashed password
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
     if (user.isBlocked) {
       return res.status(403).json({ error: 'Account is temporarily blocked due to no-shows' });
     }
+
+    // Ensure JWT_SECRET is set
+    if (!process.env.JWT_SECRET) {
+      console.error('JWT_SECRET is not set in environment variables');
+      return res.status(500).json({ error: 'Server configuration error' });
+    }
+
+    // Generate JWT token
+    const token = jwt.sign(
+      {
+        userId: user.id,
+        email: user.email,
+        role: user.role
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
     res.json({
       message: 'Login successful',
+      token,
       user: {
         id: user.id,
         username: user.username,
@@ -114,23 +169,51 @@ export const login = async (req, res, next) => {
 export const registerTelegram = async (req, res, next) => {
   try {
     const { telegramId, username, firstName, lastName, phoneNumber } = req.body;
+
+    if (!telegramId) {
+      return res.status(400).json({ error: 'Telegram ID is required' });
+    }
+
     let existingUser = await User.findOne({ where: { telegramId } });
     if (existingUser) {
       return res.json({
         message: 'User already registered',
-        user: { id: existingUser.id, username: existingUser.username, telegramId: existingUser.telegramId }
+        user: {
+          id: existingUser.id,
+          username: existingUser.username,
+          telegramId: existingUser.telegramId,
+          firstName: existingUser.firstName,
+          lastName: existingUser.lastName
+        }
       });
     }
+
+    // Generate a secure temporary password and hash it
+    const tempPassword = crypto.randomBytes(16).toString('hex');
+    const saltRounds = 12;
+    const hashedPassword = await bcrypt.hash(tempPassword, saltRounds);
+
     const user = await User.create({
       username: username || `telegram_${telegramId}`,
       email: `telegram_${telegramId}@temp.com`,
-      password: `temp_${telegramId}`,
+      password: hashedPassword,
       telegramId,
-      phoneNumber
+      firstName,
+      lastName,
+      phoneNumber,
+      authProvider: 'telegram',
+      isEmailVerified: false
     });
+
     res.status(201).json({
       message: 'Telegram user registered successfully',
-      user: { id: user.id, username: user.username, telegramId: user.telegramId }
+      user: {
+        id: user.id,
+        username: user.username,
+        telegramId: user.telegramId,
+        firstName: user.firstName,
+        lastName: user.lastName
+      }
     });
   } catch (error) {
     next(error);
@@ -200,8 +283,12 @@ export const resetPassword = async (req, res, next) => {
       return res.status(400).json({ error: 'Invalid or expired reset token' });
     }
 
+    // Hash the new password before saving
+    const saltRounds = 12;
+    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
     // Update password and clear reset token
-    user.password = newPassword;
+    user.password = hashedPassword;
     user.resetPasswordToken = null;
     user.resetPasswordExpires = null;
     await user.save();

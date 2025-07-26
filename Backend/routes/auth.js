@@ -1,5 +1,13 @@
 import express from 'express';
 import { register, login, registerTelegram, forgotPassword, resetPassword } from '../controllers/authController.js';
+import { authRateLimit, passwordResetRateLimit } from '../middleWare/security.js';
+import {
+  validateRegistration,
+  validateLogin,
+  validateTelegramRegistration,
+  validateForgotPassword,
+  validatePasswordReset
+} from '../middleWare/validation.js';
 
 const router = express.Router();
 
@@ -42,7 +50,7 @@ const router = express.Router();
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.post('/register', register);
+router.post('/register', authRateLimit, validateRegistration, register);
 
 /**
  * @swagger
@@ -79,10 +87,10 @@ router.post('/register', register);
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.post('/login', login);
+router.post('/login', authRateLimit, validateLogin, login);
 
 // Register Telegram user
-router.post('/register-telegram', registerTelegram);
+router.post('/register-telegram', authRateLimit, validateTelegramRegistration, registerTelegram);
 
 /**
  * @swagger
@@ -117,7 +125,7 @@ router.post('/register-telegram', registerTelegram);
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.post('/forgot-password', forgotPassword);
+router.post('/forgot-password', passwordResetRateLimit, validateForgotPassword, forgotPassword);
 
 /**
  * @swagger
@@ -152,6 +160,6 @@ router.post('/forgot-password', forgotPassword);
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.post('/reset-password', resetPassword);
+router.post('/reset-password', passwordResetRateLimit, validatePasswordReset, resetPassword);
 
 export default router;

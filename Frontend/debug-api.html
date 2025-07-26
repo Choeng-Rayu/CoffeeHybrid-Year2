@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Debug</title>
+</head>
+<body>
+    <h1>API Configuration Debug</h1>
+    <div id="output"></div>
+    
+    <script type="module">
+        // Import the hosting detector
+        import hostingDetector from './src/utils/hostingDetector.js';
+        
+        const output = document.getElementById('output');
+        
+        function log(message) {
+            output.innerHTML += '<p>' + message + '</p>';
+            console.log(message);
+        }
+        
+        log('🔍 Debugging API Configuration...');
+        log('');
+        
+        log('Environment: ' + hostingDetector.environment);
+        log('API Base URL: ' + hostingDetector.config.apiBaseUrl);
+        log('API URL: ' + hostingDetector.config.apiUrl);
+        log('Frontend URL: ' + hostingDetector.config.frontendUrl);
+        log('Is Production: ' + hostingDetector.config.isProduction);
+        log('');
+        
+        log('Expected registration URL: ' + hostingDetector.config.apiBaseUrl + '/auth/register');
+        log('Expected login URL: ' + hostingDetector.config.apiBaseUrl + '/auth/login');
+        log('');
+        
+        // Test the API configuration
+        try {
+            const testData = {
+                username: 'testuser',
+                email: 'test@example.com',
+                password: 'password123'
+            };
+            
+            log('Testing registration endpoint...');
+            
+            fetch(hostingDetector.config.apiBaseUrl + '/auth/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(testData)
+            })
+            .then(response => {
+                log('Response status: ' + response.status);
+                log('Response URL: ' + response.url);
+                return response.text();
+            })
+            .then(data => {
+                log('Response data: ' + data);
+            })
+            .catch(error => {
+                log('Error: ' + error.message);
+            });
+            
+        } catch (error) {
+            log('Error testing API: ' + error.message);
+        }
+    </script>
+</body>
+</html>

@@ -6,15 +6,12 @@ import passport from './config/passport.js';
 import HostingManager from './config/hosting.js';
 import errorHandler from './middleWare/errorHandler.js';
 import { activityLogger, authLogger, systemLogger } from './middleWare/activityLogger.js';
-import { securityHeaders, generalRateLimit, securityLogger } from './middleWare/security.js';
-import { sanitizeInput } from './middleWare/validation.js';
-import { performanceMonitor, getHealthMetrics, startPerformanceLogging } from './middleWare/performance.js';
 import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import swaggerOptions from './config/swagger.js';
 
 // Import Sequelize instance
-import  sequelize  from './models/index.js';  // adjust path if needed
+import sequelize from './models/index.js';
 
 // Import routes
 import authRoutes from './routes/auth.js';
@@ -27,20 +24,19 @@ import googleAuthRoutes from './routes/googleAuth.js';
 dotenv.config();
 
 const hostingManager = new HostingManager();
-
 const app = express();
 const PORT = hostingManager.config.port;
 
 const hostingConfig = hostingManager.getEnvironmentInfo();
 console.log('🌐 Hosting Configuration:', hostingConfig);
 
-// Define CORS options once
+// Define CORS options with port 8081 included
 const corsOptions = {
   origin: [
     'http://localhost:3000',
     'http://localhost:5173',
     'http://localhost:8080',
-    'http://localhost:8081',
+    'http://localhost:8081',  // Added for your frontend
     'https://hybridcoffee.netlify.app',
     'https://coffeehybrid.onrender.com',
     ...hostingManager.config.corsOrigins
@@ -50,25 +46,11 @@ const corsOptions = {
   allowedHeaders: ['Content-Type', 'Authorization']
 };
 
-// Security middleware (should be first)
-app.use(securityHeaders);
-app.use(performanceMonitor);
-app.use(securityLogger);
-app.use(generalRateLimit);
-
 // Apply CORS middleware
 app.use(cors(corsOptions));
-// Handle preflight requests for all routes
 app.options('*', cors(corsOptions));
 
-// Body parsing with size limits
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-
-// Input sanitization
-app.use(sanitizeInput);
-
-// Add activity logging middleware
+app.use(express.json());
 app.use(activityLogger);
 
 // Ensure SESSION_SECRET is set
@@ -83,9 +65,9 @@ app.use(session({
   saveUninitialized: false,
   cookie: {
     secure: process.env.NODE_ENV === 'production',
-    httpOnly: true, // Prevent XSS attacks
-    maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax' // CSRF protection
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000,
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
   }
 }));
 
@@ -110,13 +92,16 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/admin', adminRoutes);
 
 app.get('/api/health', (req, res) => {
-  const healthMetrics = getHealthMetrics();
   res.json({
-    ...healthMetrics,
+    status: 'OK',
     message: 'Coffee Ordering System API is running',
     hosting: hostingManager.hostingType,
     environment: process.env.NODE_ENV || 'development',
-    urls: hostingManager.getServerUrls()
+    urls: hostingManager.getServerUrls(),
+    cors: {
+      allowedOrigins: corsOptions.origin,
+      requestOrigin: req.get('Origin') || 'No origin header'
+    }
   });
 });
 
@@ -124,25 +109,22 @@ app.get('/api/hosting/info', (req, res) => {
   res.json(hostingManager.getEnvironmentInfo());
 });
 
-// Swagger setup is already done above - removing duplicate
-
 app.use(errorHandler);
 
 const startServer = async () => {
   try {
-    // Log server startup
     systemLogger.logEvent('SERVER_STARTUP', {
       port: PORT,
       environment: process.env.NODE_ENV || 'development',
       hostingType: hostingManager.hostingType
     });
 
-    // Connect to SQL DB with Sequelize instead of Mongo
+    // Connect to SQL DB with Sequelize
     await sequelize.authenticate();
     console.log('✅ Connected to SQL database');
     systemLogger.logEvent('DATABASE_CONNECTED', { type: 'SQL', status: 'success' });
 
-    await sequelize.sync({ force: false });  // sync models to DB
+    await sequelize.sync({ force: false });
     console.log('✅ Sequelize models synced');
     systemLogger.logEvent('DATABASE_SYNCED', { status: 'success' });
 
@@ -157,6 +139,10 @@ const startServer = async () => {
       console.log(`🔐 Google OAuth: ${urls.googleAuth}`);
       console.log(`📱 Port: ${PORT}`);
       console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+      console.log('🔧 CORS enabled for:');
+      corsOptions.origin.forEach(origin => {
+        console.log(`   - ${origin}`);
+      });
 
       if (hostingManager.hostingType === 'local') {
         console.log('💻 Running in local development mode');
@@ -165,9 +151,6 @@ const startServer = async () => {
 
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       console.log('☕ Ready to serve coffee orders! ☕');
-
-      // Start performance monitoring
-      startPerformanceLogging();
 
       systemLogger.logEvent('SERVER_READY', {
         port: PORT,

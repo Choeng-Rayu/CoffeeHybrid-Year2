@@ -152,12 +152,12 @@ const OrderHistory = () => {
         <div className={styles.ordersList}>
           {orders.map((order, index) => (
             <div
-              key={order.id || order._id}
+              key={order.id}
               className={styles.orderCard}
             >
                 <div className={styles.orderHeader}>
                   <div className={styles.orderInfo}>
-                    <h3 className={styles.orderId}>Order #{(order.id || order._id)?.toString().slice(-8) || 'N/A'}</h3>
+                    <h3 className={styles.orderId}>Order #{order.id?.toString().slice(-8) || 'N/A'}</h3>
                     <p className={styles.orderDate}>{formatDate(order.createdAt)}</p>
                   </div>
                   <div className={styles.orderStatus}>
@@ -195,7 +195,7 @@ const OrderHistory = () => {
                       Show QR Code
                     </button>
                     <button
-                      onClick={() => handleCancelOrder(order._id)}
+                      onClick={() => handleCancelOrder(order.id)}
                       className={styles.cancelBtn}
                     >
                       Cancel Order
