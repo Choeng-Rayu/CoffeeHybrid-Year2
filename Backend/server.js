@@ -29,6 +29,11 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Trust proxy for Digital Ocean App Platform
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1);
+}
+
 // Define CORS options for Digital Ocean deployment
 const corsOptions = {
   origin: [
@@ -95,6 +100,12 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
   customSiteTitle: "Coffee Hybrid API Documentation"
 }));
 
+// Debug middleware to log all requests
+app.use((req, res, next) => {
+  console.log(`📝 ${req.method} ${req.url} - ${new Date().toISOString()}`);
+  next();
+});
+
 // Add auth-specific logging for auth routes
 app.use('/api/auth', authLogger);
 app.use('/api/auth', authRoutes);
@@ -104,6 +115,24 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/super-admin', superAdminRoutes);
+
+// Root route for basic connectivity test
+app.get('/', (req, res) => {
+  res.json({
+    message: 'CoffeeHybrid API is running',
+    status: 'success',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development',
+    availableRoutes: [
+      'GET /',
+      'GET /api/health',
+      'GET /api/menu',
+      'GET /api/cart/:sessionId',
+      'GET /api/auth/google',
+      'GET /api-docs'
+    ]
+  });
+});
 
 app.get('/api/health', (req, res) => {
   const healthMetrics = getHealthMetrics();
@@ -117,7 +146,25 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Swagger setup is already done above - removing duplicate
+// Catch-all route for debugging 404s
+app.use('*', (req, res) => {
+  console.log(`❌ 404 - Route not found: ${req.method} ${req.originalUrl}`);
+  res.status(404).json({
+    error: 'Route not found',
+    method: req.method,
+    url: req.originalUrl,
+    availableRoutes: [
+      'GET /',
+      'GET /api/health',
+      'GET /api/menu',
+      'POST /api/menu',
+      'GET /api/cart/:sessionId',
+      'POST /api/cart/add',
+      'GET /api/auth/google',
+      'GET /api-docs'
+    ]
+  });
+});
 
 app.use(errorHandler);
 
