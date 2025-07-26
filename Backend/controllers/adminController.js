@@ -94,6 +94,22 @@ export const registerSeller = async (req, res, next) => {
 export const addProduct = async (req, res, next) => {
   try {
     const { name, description, category, basePrice, image, sizes, addOns, preparationTime, featured } = req.body;
+
+    // Check if user has a shopName, if not provide a default based on their role
+    let shopName = req.user.shopName;
+    if (!shopName) {
+      if (req.user.role === 'admin') {
+        shopName = 'Admin Store';
+      } else if (req.user.role === 'seller') {
+        shopName = `${req.user.username}'s Shop`;
+      } else {
+        return res.status(400).json({
+          success: false,
+          error: 'Shop name is required. Please update your profile with a shop name first.'
+        });
+      }
+    }
+
     const product = await Product.create({
       name,
       description,
@@ -107,7 +123,7 @@ export const addProduct = async (req, res, next) => {
       ],
       addOns: addOns || [],
       sellerId: req.user.id,
-      shopName: req.user.shopName,
+      shopName: shopName,
       preparationTime: preparationTime || 5,
       featured: featured || false
     });
