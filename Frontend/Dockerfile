@@ -23,14 +23,15 @@ COPY --from=builder /usr/src/app/dist /usr/share/nginx/html
 # Copy nginx configuration
 COPY nginx.conf /etc/nginx/nginx.conf
 
-# Create a non-root user for security
-RUN addgroup -g 1001 -S nginx
-RUN adduser -S nginx -u 1001
+# Install wget for health check (must be done as root before switching user)
+RUN apk add --no-cache wget
 
-# Change ownership of nginx directories
+# Use existing nginx user (nginx:alpine already has nginx user)
+# Change ownership of nginx directories to existing nginx user
 RUN chown -R nginx:nginx /var/cache/nginx && \
     chown -R nginx:nginx /var/log/nginx && \
-    chown -R nginx:nginx /etc/nginx/conf.d
+    chown -R nginx:nginx /etc/nginx/conf.d && \
+    chown -R nginx:nginx /usr/share/nginx/html
 RUN touch /var/run/nginx.pid && \
     chown -R nginx:nginx /var/run/nginx.pid
 
