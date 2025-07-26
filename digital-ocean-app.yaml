@@ -1,5 +1,6 @@
 name: coffeehybrid
 services:
+# Backend Service - Node.js API
 - name: backend
   source_dir: Backend
   github:
@@ -12,45 +13,44 @@ services:
   - key: PORT
     value: 5000
   - key: DB_HOST
-    value: ${DB_HOST}
+    value: aiven-db-server-1-choengrayu233-cc4f.k.aivencloud.com
   - key: DB_PORT
-    value: ${DB_PORT}
+    value: "23075"
   - key: DB_NAME
-    value: ${DB_NAME}
+    value: HybridCoffee_db
   - key: DB_USER
-    value: ${DB_USER}
+    value: avnadmin
   - key: DB_PASSWORD
-    value: ${DB_PASSWORD}
-  - key: JWT_SECRET
-    value: ${JWT_SECRET}
-  - key: EMAIL_USER
-    value: ${EMAIL_USER}
-  - key: EMAIL_PASS
-    value: ${EMAIL_PASS}
-  - key: GOOGLE_CLIENT_ID
-    value: ${GOOGLE_CLIENT_ID}
-  - key: GOOGLE_CLIENT_SECRET
-    value: ${GOOGLE_CLIENT_SECRET}
-  - key: CLOUDINARY_CLOUD_NAME
-    value: ${CLOUDINARY_CLOUD_NAME}
-  - key: CLOUDINARY_API_KEY
-    value: ${CLOUDINARY_API_KEY}
-  - key: CLOUDINARY_API_SECRET
-    value: ${CLOUDINARY_API_SECRET}
-  - key: GMAIL_USER
-    value: ${GMAIL_USER}
-  - key: GMAIL_APP_PASSWORD
-    value: ${GMAIL_APP_PASSWORD}
-  - key: SESSION_SECRET
-    value: ${SESSION_SECRET}
+    value: AVNS_lJ64dFu24g2v-wW3lhy
   - key: DB_DIALECT
     value: mysql
+  - key: JWT_SECRET
+    value: coffee_hybrid_jwt_secret_2024_secure_key_for_authentication
+  - key: SESSION_SECRET
+    value: coffee_hybrid_session_secret_2024_secure_key_for_sessions
+  - key: GOOGLE_CLIENT_ID
+    value: 973461358129-gkoelbivttvqn0t1j8o49ig7f84lshhf.apps.googleusercontent.com
+  - key: GOOGLE_CLIENT_SECRET
+    value: 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
+  - key: GOOGLE_CALLBACK_URL
+    value: https://hybridcoffee-za9sy.ondigitalocean.app/api/auth/google/callback
+  - key: GMAIL_USER
+    value: choengrayu307@gmail.com
+  - key: GMAIL_APP_PASSWORD
+    value: yypz aext jhgk vmlb
   - key: MOCK_EMAIL
     value: "false"
+  - key: CLIENT_URL
+    value: https://hybridcoffee-za9sy.ondigitalocean.app
+  - key: FRONTEND_URL
+    value: https://hybridcoffee-za9sy.ondigitalocean.app
   http_port: 5000
   instance_size_slug: basic-xxs
   instance_count: 1
+  routes:
+  - path: /api
 
+# Frontend Service - React Static Site
 - name: frontend
   source_dir: Frontend
   github:
@@ -59,11 +59,16 @@ services:
   dockerfile_path: Frontend/Dockerfile
   env_vars:
   - key: VITE_API_BASE_URL
-    value: ${BACKEND_URL}/api
+    value: https://hybridcoffee-za9sy.ondigitalocean.app/api
+  - key: NODE_ENV
+    value: production
   http_port: 80
   instance_size_slug: basic-xxs
   instance_count: 1
+  routes:
+  - path: /
 
+# Bot Service - Telegram Bot (Optional)
 - name: bot
   source_dir: Bot
   github:
@@ -72,18 +77,19 @@ services:
   dockerfile_path: Bot/Dockerfile
   env_vars:
   - key: BOT_TOKEN
-    value: ${BOT_TOKEN}
+    value: YOUR_TELEGRAM_BOT_TOKEN_HERE
   - key: API_BASE_URL
-    value: ${BACKEND_URL}/api
+    value: https://hybridcoffee-za9sy.ondigitalocean.app/api
   - key: WEBHOOK_URL
-    value: ${BOT_WEBHOOK_URL}
+    value: https://hybridcoffee-za9sy.ondigitalocean.app/api/bot/webhook
   - key: NODE_ENV
     value: production
   instance_size_slug: basic-xxs
   instance_count: 1
 
-databases:
-- name: coffeehybrid-mysql
-  engine: MYSQL
-  version: "8"
-  size: basic-s
+# Note: Using external Aiven MySQL database instead of Digital Ocean managed database
+# databases:
+# - name: coffeehybrid-mysql
+#   engine: MYSQL
+#   version: "8"
+#   size: basic-s
