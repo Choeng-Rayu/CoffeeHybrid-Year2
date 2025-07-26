@@ -3,7 +3,6 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import session from 'express-session';
 import passport from './config/passport.js';
-import HostingManager from './config/hosting.js';
 import errorHandler from './middleWare/errorHandler.js';
 import { activityLogger, authLogger, systemLogger } from './middleWare/activityLogger.js';
 import { securityHeaders, generalRateLimit, securityLogger } from './middleWare/security.js';
@@ -27,25 +26,20 @@ import googleAuthRoutes from './routes/googleAuth.js';
 
 dotenv.config();
 
-const hostingManager = new HostingManager();
-
 const app = express();
-const PORT = hostingManager.config.port;
+const PORT = process.env.PORT || 5000;
 
-const hostingConfig = hostingManager.getEnvironmentInfo();
-console.log('🌐 Hosting Configuration:', hostingConfig);
-
-// Define CORS options once
+// Define CORS options for Digital Ocean deployment
 const corsOptions = {
   origin: [
     'http://localhost:3000',
     'http://localhost:5173',
     'http://localhost:8080',
     'http://localhost:8081',
-    'https://hybridcoffee.netlify.app',
-    'https://coffeehybrid.onrender.com',
-    ...hostingManager.config.corsOrigins
-  ],
+    'https://hybridcoffee-za9sy.ondigitalocean.app',
+    process.env.CLIENT_URL,
+    process.env.FRONTEND_URL
+  ].filter(Boolean), // Remove any undefined values
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -116,14 +110,11 @@ app.get('/api/health', (req, res) => {
   res.json({
     ...healthMetrics,
     message: 'Coffee Ordering System API is running',
-    hosting: hostingManager.hostingType,
+    hosting: 'Digital Ocean',
     environment: process.env.NODE_ENV || 'development',
-    urls: hostingManager.getServerUrls()
+    port: PORT,
+    timestamp: new Date().toISOString()
   });
-});
-
-app.get('/api/hosting/info', (req, res) => {
-  res.json(hostingManager.getEnvironmentInfo());
 });
 
 // Swagger setup is already done above - removing duplicate
@@ -136,7 +127,7 @@ const startServer = async () => {
     systemLogger.logEvent('SERVER_STARTUP', {
       port: PORT,
       environment: process.env.NODE_ENV || 'development',
-      hostingType: hostingManager.hostingType
+      hostingType: 'Digital Ocean'
     });
 
     // Connect to SQL DB with Sequelize instead of Mongo
@@ -149,22 +140,20 @@ const startServer = async () => {
     systemLogger.logEvent('DATABASE_SYNCED', { status: 'success' });
 
     app.listen(PORT, () => {
-      const urls = hostingManager.getServerUrls();
+      const baseUrl = process.env.NODE_ENV === 'production'
+        ? process.env.FRONTEND_URL || 'https://hybridcoffee-za9sy.ondigitalocean.app'
+        : `http://localhost:${PORT}`;
+
       console.log('\n🚀 CoffeeHybrid Server Started Successfully!');
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log(`📍 Hosting Type: ${hostingManager.hostingType.toUpperCase()}`);
-      console.log(`🌐 Server URL: ${urls.base}`);
-      console.log(`🔗 API Base: ${urls.api}`);
-      console.log(`❤️  Health Check: ${urls.health}`);
-      console.log(`🔐 Google OAuth: ${urls.googleAuth}`);
+      console.log(`📍 Hosting: Digital Ocean`);
+      console.log(`🌐 Server URL: ${baseUrl}`);
+      console.log(`🔗 API Base: ${baseUrl}/api`);
+      console.log(`❤️  Health Check: ${baseUrl}/api/health`);
+      console.log(`🔐 Google OAuth: ${baseUrl}/api/auth/google`);
+      console.log(`📚 API Docs: ${baseUrl}/api-docs`);
       console.log(`📱 Port: ${PORT}`);
       console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-
-      if (hostingManager.hostingType === 'local') {
-        console.log('💻 Running in local development mode');
-        console.log('🔧 For global access, consider using ngrok (files available)');
-      }
-
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       console.log('☕ Ready to serve coffee orders! ☕');
 
@@ -173,7 +162,7 @@ const startServer = async () => {
 
       systemLogger.logEvent('SERVER_READY', {
         port: PORT,
-        urls: urls,
+        baseUrl: baseUrl,
         environment: process.env.NODE_ENV || 'development'
       });
     });

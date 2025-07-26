@@ -13,25 +13,18 @@ class HostingDetector {
    * Detect current hosting environment
    */
   detectEnvironment() {
-    // Check for production hosting platforms
-    if (window.location.hostname.includes('vercel.app')) return 'vercel';
-    if (window.location.hostname.includes('netlify.app')) return 'netlify';
-    if (window.location.hostname.includes('onrender.com')) return 'render';
-    if (window.location.hostname.includes('railway.app')) return 'railway';
-    if (window.location.hostname.includes('herokuapp.com')) return 'heroku';
-    if (window.location.hostname.includes('appspot.com')) return 'google-cloud';
+    // Check for Digital Ocean hosting
     if (window.location.hostname.includes('ondigitalocean.app')) return 'digital-ocean';
-    if (window.location.hostname.includes('ngrok.io')) return 'ngrok';
-    
+
     // Check for localhost variations
-    if (window.location.hostname === 'localhost' || 
+    if (window.location.hostname === 'localhost' ||
         window.location.hostname === '127.0.0.1' ||
         window.location.hostname.startsWith('192.168.')) {
       return 'local';
     }
-    
-    // Custom domain
-    return 'custom';
+
+    // Custom domain - assume Digital Ocean production
+    return 'digital-ocean';
   }
 
   /**
@@ -41,13 +34,13 @@ class HostingDetector {
     const baseConfig = {
       environment: this.environment,
       frontendUrl: window.location.origin,
-      isProduction: this.environment !== 'local' && this.environment !== 'ngrok',
-      isDevelopment: this.environment === 'local' || this.environment === 'ngrok',
+      isProduction: this.environment === 'digital-ocean',
+      isDevelopment: this.environment === 'local',
     };
 
     // Get API URL from environment variables or detect
     const apiUrl = this.getApiUrl();
-    
+
     return {
       ...baseConfig,
       apiUrl,
@@ -76,52 +69,18 @@ class HostingDetector {
 
     // Auto-detect based on hosting environment
     switch (this.environment) {
-      case 'vercel':
-        // Vercel typically uses serverless functions
-        return window.location.origin;
-        
-      case 'netlify':
-        // Netlify hosting with external API
-        return import.meta.env.VITE_API_URL?.replace('/api', '') ||
-               'https://coffeehybrid.onrender.com';
-
       case 'digital-ocean':
         // Digital Ocean App Platform - use environment variable or auto-detect
         return import.meta.env.VITE_API_BASE_URL?.replace('/api', '') ||
                this.getDigitalOceanBackendUrl();
-        
-      case 'render':
-        // Render backend service (replace with your actual backend URL)
-        return import.meta.env.VITE_RENDER_API_URL || 
-               'https://coffeehybrid-api.onrender.com';
-        
-      case 'railway':
-        // Railway backend service
-        return import.meta.env.VITE_RAILWAY_API_URL || 
-               'https://coffeehybrid-api.up.railway.app';
-        
-      case 'heroku':
-        // Heroku backend app
-        return import.meta.env.VITE_HEROKU_API_URL || 
-               'https://coffeehybrid-api.herokuapp.com';
-        
-      case 'google-cloud':
-        // Google Cloud Run service
-        return import.meta.env.VITE_GOOGLE_CLOUD_API_URL || 
-               'https://coffeehybrid-api-hash.a.run.app';
-        
-      case 'ngrok':
-        // ngrok tunnel - disabled, fallback to local
-        console.log('ℹ️ ngrok detection disabled, using local development');
-        return 'http://localhost:5000';
 
       case 'local':
         // Local development
         return 'http://localhost:5000';
-        
+
       default:
-        // Custom domain - assume API is on same domain with /api path
-        return window.location.origin;
+        // Custom domain - assume Digital Ocean production
+        return this.getDigitalOceanBackendUrl();
     }
   }
 
@@ -131,51 +90,15 @@ class HostingDetector {
    */
   getDigitalOceanBackendUrl() {
     const hostname = window.location.hostname;
-    
-    // Try to extract app name from frontend URL and construct backend URL
+
+    // For Digital Ocean, use the known backend URL
     if (hostname.includes('ondigitalocean.app')) {
-      // If frontend is: coffeehybrid-frontend-xxxxx.ondigitalocean.app
-      // Backend might be: coffeehybrid-backend-xxxxx.ondigitalocean.app
-      const parts = hostname.split('-');
-      if (parts.length >= 3 && parts[1] === 'frontend') {
-        const backendHostname = hostname.replace('-frontend-', '-backend-');
-        return `https://${backendHostname}`;
-      }
-      
-      // Fallback: try common naming patterns
-      const appPrefix = parts[0]; // e.g., 'coffeehybrid'
-      return `https://${appPrefix}-backend.ondigitalocean.app`;
+      // Use the specific backend URL for your Digital Ocean deployment
+      return 'https://hybridcoffee-za9sy.ondigitalocean.app';
     }
-    
+
     // Fallback to localhost for development
     return 'http://localhost:5000';
-  }
-
-  /**
-   * Try to detect ngrok backend URL
-   */
-  detectNgrokBackend() {
-    // Check if there's a backend ngrok URL in localStorage
-    const storedBackendUrl = localStorage.getItem('ngrok_backend_url');
-    if (storedBackendUrl) {
-      return storedBackendUrl;
-    }
-
-    // Check environment variable
-    const ngrokBackendUrl = import.meta.env.VITE_NGROK_BACKEND_URL;
-    if (ngrokBackendUrl) {
-      return ngrokBackendUrl;
-    }
-
-    // Try to guess based on current ngrok URL pattern
-    const currentUrl = window.location.origin;
-    if (currentUrl.includes('ngrok.io')) {
-      // Replace frontend subdomain with backend subdomain
-      const backendUrl = currentUrl.replace(/https:\/\/[^.]+/, 'https://api');
-      return backendUrl;
-    }
-
-    return null;
   }
 
   /**
