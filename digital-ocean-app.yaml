@@ -81,7 +81,7 @@ services:
   - key: API_BASE_URL
     value: https://hybridcoffee-za9sy.ondigitalocean.app/api
   - key: WEBHOOK_URL
-    value: https://hybridcoffee-za9sy.ondigitalocean.app/bot/webhook
+    value: https://seal-app-mvbaj.ondigitalocean.app/webhook
   - key: PORT
     value: 8080
   - key: NODE_ENV
