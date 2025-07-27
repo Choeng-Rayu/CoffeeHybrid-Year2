@@ -77,15 +77,20 @@ services:
   dockerfile_path: Bot/Dockerfile
   env_vars:
   - key: BOT_TOKEN
-    value: YOUR_TELEGRAM_BOT_TOKEN_HERE
+    value: 7757348367:AAFPors_8MpwQKwvtt3i9PbTquI2bDVC3vw
   - key: API_BASE_URL
     value: https://hybridcoffee-za9sy.ondigitalocean.app/api
   - key: WEBHOOK_URL
-    value: https://hybridcoffee-za9sy.ondigitalocean.app/api/bot/webhook
+    value: https://hybridcoffee-za9sy.ondigitalocean.app/bot/webhook
+  - key: PORT
+    value: 8080
   - key: NODE_ENV
     value: production
+  http_port: 8080
   instance_size_slug: basic-xxs
   instance_count: 1
+  routes:
+  - path: /bot
 
 # Note: Using external Aiven MySQL database instead of Digital Ocean managed database
 # databases:
