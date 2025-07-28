@@ -60,6 +60,8 @@ services:
   env_vars:
   - key: VITE_API_URL
     value: https://backend-hybrid-coffee-mvs8r.ondigitalocean.app/api
+  - key: VITE_API_BASE_URL
+    value: https://backend-hybrid-coffee-mvs8r.ondigitalocean.app/api
   - key: VITE_GOOGLE_CLIENT_ID
     value: 973461358129-gkoelbivttvqn0t1j8o49ig7f84lshhf.apps.googleusercontent.com
   - key: NODE_ENV
