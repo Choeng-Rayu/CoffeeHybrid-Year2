@@ -34,14 +34,15 @@ if (process.env.NODE_ENV === 'production') {
   app.set('trust proxy', 1);
 }
 
-// Define CORS options for Digital Ocean deployment
+// Define CORS options for separate backend/frontend deployment
 const corsOptions = {
   origin: [
     'http://localhost:3000',
     'http://localhost:5173',
     'http://localhost:8080',
     'http://localhost:8081',
-    'https://hybridcoffee-za9sy.ondigitalocean.app',
+    'https://hybridcoffee-za9sy.ondigitalocean.app', // Frontend URL
+    'https://backend-hybrid-coffee-mvs8r.ondigitalocean.app', // Backend URL (for API docs)
     process.env.CLIENT_URL,
     process.env.FRONTEND_URL
   ].filter(Boolean), // Remove any undefined values
@@ -187,18 +188,20 @@ const startServer = async () => {
     systemLogger.logEvent('DATABASE_SYNCED', { status: 'success' });
 
     app.listen(PORT, () => {
-      const baseUrl = process.env.NODE_ENV === 'production'
-        ? process.env.FRONTEND_URL || 'https://hybridcoffee-za9sy.ondigitalocean.app'
+      const backendUrl = process.env.NODE_ENV === 'production'
+        ? 'https://backend-hybrid-coffee-mvs8r.ondigitalocean.app'
         : `http://localhost:${PORT}`;
+      const frontendUrl = process.env.FRONTEND_URL || 'https://hybridcoffee-za9sy.ondigitalocean.app';
 
-      console.log('\n🚀 CoffeeHybrid Server Started Successfully!');
+      console.log('\n🚀 CoffeeHybrid Backend Started Successfully!');
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log(`📍 Hosting: Digital Ocean`);
-      console.log(`🌐 Server URL: ${baseUrl}`);
-      console.log(`🔗 API Base: ${baseUrl}/api`);
-      console.log(`❤️  Health Check: ${baseUrl}/api/health`);
-      console.log(`🔐 Google OAuth: ${baseUrl}/api/auth/google`);
-      console.log(`📚 API Docs: ${baseUrl}/api-docs`);
+      console.log(`📍 Hosting: Digital Ocean (Separate Backend)`);
+      console.log(`🌐 Backend URL: ${backendUrl}`);
+      console.log(`🔗 API Base: ${backendUrl}/api`);
+      console.log(`❤️  Health Check: ${backendUrl}/api/health`);
+      console.log(`🔐 Google OAuth: ${backendUrl}/api/auth/google`);
+      console.log(`📚 API Docs: ${backendUrl}/api-docs`);
+      console.log(`🎨 Frontend URL: ${frontendUrl}`);
       console.log(`📱 Port: ${PORT}`);
       console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
