@@ -212,7 +212,8 @@ const startServer = async () => {
 
       systemLogger.logEvent('SERVER_READY', {
         port: PORT,
-        baseUrl: baseUrl,
+        backendUrl: backendUrl,
+        frontendUrl: frontendUrl,
         environment: process.env.NODE_ENV || 'development'
       });
     });
