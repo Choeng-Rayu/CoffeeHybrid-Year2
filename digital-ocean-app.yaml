@@ -50,7 +50,7 @@ services:
   routes:
   - path: /api
 
-# Frontend Service - React App with Node.js serve
+# Frontend Service - React SPA with Node.js serve (Web Service)
 - name: frontend
   source_dir: Frontend
   github:

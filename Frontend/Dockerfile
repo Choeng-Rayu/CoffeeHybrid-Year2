@@ -13,8 +13,8 @@ COPY . ./
 # Build the application for production
 RUN npm run build
 
-# Install serve to serve static files
-RUN npm install -g serve
+# Install production dependencies (express for server)
+RUN npm ci --only=production
 
 # Create a non-root user
 RUN addgroup -g 1001 -S appuser && \
@@ -27,5 +27,5 @@ USER appuser
 
 EXPOSE 3000
 
-# Serve the built application with SPA routing support using serve.json
-CMD ["serve", "-c", "serve.json", "-l", "3000"]
+# Start the Express server for SPA routing
+CMD ["node", "server.js"]
