@@ -11,10 +11,17 @@ const isGoogleConfigured = () => {
 };
 
 export const googleAuth = (req, res, next) => {
+  console.log('🔐 Google OAuth initiated:', {
+    configured: isGoogleConfigured(),
+    clientId: process.env.GOOGLE_CLIENT_ID?.substring(0, 20) + '...',
+    callbackUrl: process.env.GOOGLE_CALLBACK_URL
+  });
+
   if (!isGoogleConfigured()) {
     const frontendUrl = process.env.NODE_ENV === 'production'
       ? (process.env.FRONTEND_URL || process.env.CLIENT_URL || 'https://hybridcoffee.netlify.app')
       : (process.env.CLIENT_URL || 'http://localhost:8081');
+    console.log('❌ Google OAuth not configured, redirecting to:', `${frontendUrl}/login?error=oauth_not_configured`);
     return res.redirect(`${frontendUrl}/login?error=oauth_not_configured`);
   }
   passport.authenticate('google', { scope: ['profile', 'email'] })(req, res, next);
@@ -37,6 +44,8 @@ export const googleCallback = [
   },
   async (req, res) => {
     try {
+      console.log('✅ Google OAuth callback successful, processing user:', req.user?.email);
+
       const user = req.user;
       const token = jwt.sign(
         { userId: user.id, email: user.email, role: user.role },
@@ -61,9 +70,14 @@ export const googleCallback = [
         frontendUrl = process.env.CLIENT_URL || 'http://localhost:8081';
       }
       const redirectUrl = `${frontendUrl}/auth/callback?token=${token}&user=${encodeURIComponent(JSON.stringify(userData))}`;
+
+      console.log('🔄 Redirecting to frontend callback:', redirectUrl);
       res.redirect(redirectUrl);
     } catch (error) {
-      res.redirect(`${process.env.CLIENT_URL || 'http://localhost:8081'}/login?error=callback_failed`);
+      console.error('❌ Google OAuth callback error:', error);
+      const fallbackUrl = `${process.env.CLIENT_URL || 'http://localhost:8081'}/login?error=callback_failed`;
+      console.log('🔄 Redirecting to error page:', fallbackUrl);
+      res.redirect(fallbackUrl);
     }
   }
 ];
