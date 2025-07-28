@@ -5,6 +5,10 @@
   # Directory to publish (Vite builds to 'dist')
   publish = "dist"
 
+# Environment variables for production
+[build.environment]
+  VITE_API_URL = "https://backend-hybrid-coffee-mvs8r.ondigitalocean.app/api"
+
 # Redirect all routes to index.html for React Router (SPA)
 [[redirects]]
   from = "/*"
@@ -19,6 +23,7 @@
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://backend-hybrid-coffee-mvs8r.ondigitalocean.app;"
 
 # Cache static assets
 [[headers]]

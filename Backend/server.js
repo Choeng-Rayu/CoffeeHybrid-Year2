@@ -34,7 +34,7 @@ if (process.env.NODE_ENV === 'production') {
   app.set('trust proxy', 1);
 }
 
-// Define CORS options for Netlify frontend + Digital Ocean backend
+// Define CORS options for custom frontend domain + Digital Ocean backend
 const corsOptions = {
   origin: [
     'http://localhost:3000',
@@ -42,7 +42,9 @@ const corsOptions = {
     'http://localhost:5174',
     'http://localhost:8080',
     'http://localhost:8081',
-    'https://hybrid-coffee.netlify.app', // Netlify Frontend URL
+    'https://hybrid-coffee.netlify.app', // Backup Netlify URL
+    'https://hybridcoffee.me', // Custom Frontend Domain
+    'https://www.hybridcoffee.me', // WWW version of custom domain
     'https://backend-hybrid-coffee-mvs8r.ondigitalocean.app', // Backend URL (for API docs)
     process.env.CLIENT_URL,
     process.env.FRONTEND_URL
