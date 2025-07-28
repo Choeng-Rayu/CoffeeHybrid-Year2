@@ -58,8 +58,10 @@ services:
     branch: main
   dockerfile_path: Frontend/Dockerfile
   env_vars:
-  - key: VITE_API_BASE_URL
+  - key: VITE_API_URL
     value: https://hybridcoffee-za9sy.ondigitalocean.app/api
+  - key: VITE_GOOGLE_CLIENT_ID
+    value: 973461358129-gkoelbivttvqn0t1j8o49ig7f84lshhf.apps.googleusercontent.com
   - key: NODE_ENV
     value: production
   http_port: 3000
