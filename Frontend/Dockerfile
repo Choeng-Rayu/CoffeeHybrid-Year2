@@ -27,5 +27,5 @@ USER appuser
 
 EXPOSE 3000
 
-# Serve the built application
-CMD ["serve", "-s", "dist", "-l", "3000"]
+# Serve the built application with SPA routing support using serve.json
+CMD ["serve", "-c", "serve.json", "-l", "3000"]
