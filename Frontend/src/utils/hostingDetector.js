@@ -86,15 +86,15 @@ class HostingDetector {
 
   /**
    * Auto-detect Digital Ocean backend URL
-   * Digital Ocean App Platform typically follows predictable naming
+   * Digital Ocean App Platform - separate backend deployment
    */
   getDigitalOceanBackendUrl() {
     const hostname = window.location.hostname;
 
-    // For Digital Ocean, use the known backend URL
+    // For Digital Ocean, use the separate backend URL
     if (hostname.includes('ondigitalocean.app')) {
-      // Use the specific backend URL for your Digital Ocean deployment
-      return 'https://hybridcoffee-za9sy.ondigitalocean.app';
+      // Use the specific backend URL for your separate Digital Ocean backend deployment
+      return 'https://backend-hybrid-coffee-mvs8r.ondigitalocean.app';
     }
 
     // Fallback to localhost for development

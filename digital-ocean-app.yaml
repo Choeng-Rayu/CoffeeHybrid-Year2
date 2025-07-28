@@ -33,7 +33,7 @@ services:
   - key: GOOGLE_CLIENT_SECRET
     value: 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
   - key: GOOGLE_CALLBACK_URL
-    value: https://hybridcoffee-za9sy.ondigitalocean.app/api/auth/google/callback
+    value: https://backend-hybrid-coffee-mvs8r.ondigitalocean.app/api/auth/google/callback
   - key: GMAIL_USER
     value: choengrayu307@gmail.com
   - key: GMAIL_APP_PASSWORD
@@ -50,7 +50,7 @@ services:
   routes:
   - path: /api
 
-# Frontend Service - React App with Node.js serve
+# Frontend Service - React SPA with Node.js serve (Web Service)
 - name: frontend
   source_dir: Frontend
   github:
@@ -59,7 +59,9 @@ services:
   dockerfile_path: Frontend/Dockerfile
   env_vars:
   - key: VITE_API_URL
-    value: https://hybridcoffee-za9sy.ondigitalocean.app/api
+    value: https://backend-hybrid-coffee-mvs8r.ondigitalocean.app/api
+  - key: VITE_API_BASE_URL
+    value: https://backend-hybrid-coffee-mvs8r.ondigitalocean.app/api
   - key: VITE_GOOGLE_CLIENT_ID
     value: 973461358129-gkoelbivttvqn0t1j8o49ig7f84lshhf.apps.googleusercontent.com
   - key: NODE_ENV
@@ -81,7 +83,7 @@ services:
   - key: BOT_TOKEN
     value: 7757348367:AAFPors_8MpwQKwvtt3i9PbTquI2bDVC3vw
   - key: API_BASE_URL
-    value: https://hybridcoffee-za9sy.ondigitalocean.app/api
+    value: https://backend-hybrid-coffee-mvs8r.ondigitalocean.app/api
   - key: WEBHOOK_URL
     value: https://seal-app-mvbaj.ondigitalocean.app/webhook
   - key: PORT

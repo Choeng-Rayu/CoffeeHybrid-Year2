@@ -1,28 +1,41 @@
 import axios from 'axios';
-import hostingDetector from '../utils/hostingDetector.js';
 
-// Use hosting detector to get the correct API URL
-let API_BASE_URL = hostingDetector.config.apiBaseUrl;
+// Get API URL from environment variables with fallback
+const getApiBaseUrl = () => {
+  // Check for explicit environment variables first
+  const viteApiUrl = import.meta.env.VITE_API_URL;
+  const viteApiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 
-// Override for development if needed
-if (window.location.hostname === 'localhost' && window.location.port === '8081') {
-  API_BASE_URL = 'http://localhost:5000/api';
-  console.log('🔧 Using development override for API URL:', API_BASE_URL);
-}
+  if (viteApiUrl) {
+    console.log('🔧 Using VITE_API_URL:', viteApiUrl);
+    return viteApiUrl;
+  }
+
+  if (viteApiBaseUrl) {
+    console.log('🔧 Using VITE_API_BASE_URL:', viteApiBaseUrl);
+    return viteApiBaseUrl;
+  }
+
+  // Fallback for local development
+  if (window.location.hostname === 'localhost') {
+    console.log('🔧 Using localhost fallback');
+    return 'http://localhost:5000/api';
+  }
+
+  // Production fallback
+  console.log('🔧 Using production fallback');
+  return 'https://backend-hybrid-coffee-mvs8r.ondigitalocean.app/api';
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 console.log('🌐 API Configuration:', {
-  environment: hostingDetector.environment,
-  apiBaseUrl: API_BASE_URL,
-  isProduction: hostingDetector.config.isProduction,
-});
-
-// Debug: Log the actual URLs being used
-console.log('🔍 Debug API URLs:', {
-  apiUrl: hostingDetector.config.apiUrl,
-  apiBaseUrl: hostingDetector.config.apiBaseUrl,
-  authUrl: hostingDetector.config.authUrl,
-  registerUrl: `${API_BASE_URL}/auth/register`,
-  loginUrl: `${API_BASE_URL}/auth/login`
+  API_BASE_URL,
+  hostname: window.location.hostname,
+  origin: window.location.origin,
+  VITE_API_URL: import.meta.env.VITE_API_URL,
+  VITE_API_BASE_URL: import.meta.env.VITE_API_BASE_URL,
+  MODE: import.meta.env.MODE
 });
 
 const api = axios.create({

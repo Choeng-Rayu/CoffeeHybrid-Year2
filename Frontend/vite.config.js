@@ -11,5 +11,15 @@ export default defineConfig({
   preview: {
     host: '0.0.0.0',
     port: 8080
+  },
+  build: {
+    outDir: 'dist',
+    assetsDir: 'assets',
+    // Ensure proper handling of client-side routing
+    rollupOptions: {
+      output: {
+        manualChunks: undefined
+      }
+    }
   }
 })
