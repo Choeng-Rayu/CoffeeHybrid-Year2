@@ -16,26 +16,26 @@
   --transition-fast: 0.2s ease;
   --transition-base: 0.3s ease;
   --transition-slow: 0.5s ease;
-  --space-xs: 0.5rem;
-  --space-sm: 1rem;
-  --space-md: 1.5rem;
-  --space-lg: 2rem;
-  --space-xl: 3rem;
-  --text-xs: 0.875rem; /* 14px */
-  --text-sm: 1rem; /* 16px */
-  --text-base: 1.125rem; /* 18px */
-  --text-lg: 1.25rem; /* 20px */
-  --text-xl: 1.5rem; /* 24px */
-  --text-2xl: 1.875rem; /* 30px */
-  --text-3xl: 2.25rem; /* 36px */
-  --text-4xl: 3rem; /* 48px */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 0.75rem;
+  --space-lg: 1rem;
+  --space-xl: 1.5rem;
+  --text-xs: 0.7rem;
+  --text-sm: 0.8rem;
+  --text-base: 0.9rem;
+  --text-lg: 1rem;
+  --text-xl: 1.1rem;
+  --text-2xl: 1.25rem;
+  --text-3xl: 1.5rem;
+  --text-4xl: 2rem;
 }
 
 /* ===== NAVBAR STYLES ===== */
 .navbar {
   background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
   color: var(--text-light);
-  padding: 1.5rem 0;
+  padding: 1.8rem 0;
   position: sticky;
   top: 0;
   z-index: 1000;
@@ -45,14 +45,14 @@
 }
 
 .navbar.scrolled {
-  padding: 1rem 0;
+  padding: 1.2rem 0;
   backdrop-filter: blur(10px);
   background: rgba(58, 38, 21, 0.95);
   box-shadow: var(--shadow-lg);
 }
 
 .navContainer {
-  max-width: 1400px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 0 var(--space-lg);
   display: flex;
@@ -67,7 +67,7 @@
   gap: var(--space-sm);
   font-family: 'Playfair Display', serif;
   font-weight: 700;
-  font-size: var(--text-xl);
+  font-size: var(--text-lg);
   color: var(--secondary-color);
   text-decoration: none;
   transition: transform var(--transition-fast);
@@ -79,7 +79,7 @@
 }
 
 .logoIcon {
-  font-size: 2.8rem;
+  font-size: 1.5rem;
   transition: transform var(--transition-slow);
 }
 
@@ -113,14 +113,14 @@
   border-radius: var(--radius-md);
   transition: all var(--transition-fast);
   font-weight: 500;
-  font-size: var(--text-base);
+  font-size: var(--text-sm);
   position: relative;
-  min-width: 80px;
+  min-width: 60px;
 }
 
 .linkText {
-  font-size: var(--text-base);
-  margin-top: 4px;
+  font-size: var(--text-xs);
+  margin-top: 2px;
 }
 
 .navLink:hover {
@@ -146,7 +146,7 @@
 }
 
 .navIcon {
-  font-size: var(--text-lg);
+  font-size: var(--text-base);
 }
 
 /* ===== CART STYLES ===== */
@@ -314,13 +314,14 @@
 
 .sellerButton {
   background: transparent;
-  color: var(--secondary-color);
-  border: 1px solid var(--secondary-color);
+  color: var(--text-light);
+  border: 1px solid var(--text-light);
   font-weight: 600;
 }
 
 .sellerButton:hover {
-  background: rgba(212, 165, 116, 0.1);
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--text-light);
   transform: translateY(-2px);
 }
 

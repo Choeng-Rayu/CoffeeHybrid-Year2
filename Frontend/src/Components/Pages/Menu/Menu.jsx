@@ -16,7 +16,8 @@ const Menu = () => {
 
   const categories = [
     { id: 'hot', name: 'Hot Coffee', icon: '☕', color: 'var(--cinnamon)' },
-    { id: 'cold', name: 'Cold Brews', icon: '🧊', color: 'var(--accent-green)' },
+    { id: 'iced', name: 'Cold Brews', icon: '🧊', color: 'var(--accent-green)' },
+    { id: 'frappe', name: 'Frappes', icon: '🥤', color: 'var(--accent-purple)' },
     { id: 'dessert', name: 'Pastries', icon: '🍰', color: 'var(--caramel)' },
     { id: 'specialty', name: 'Specialties', icon: '✨', color: 'var(--accent-red)' }
   ];

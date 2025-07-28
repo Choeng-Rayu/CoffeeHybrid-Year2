@@ -58,8 +58,8 @@
 
 /* ===== PRODUCT CARD ===== */
 .productCard {
-  --card-min-height: 380px;
-  --card-max-width: 320px;
+  --card-min-height: 420px;
+  --card-max-width: 300px;
   
   background: var(--background-primary);
   border-radius: var(--radius-lg);
@@ -67,9 +67,10 @@
   overflow: hidden;
   transition: all var(--transition-base);
   cursor: pointer;
-  height: 100%;
-  min-height: var(--card-min-height);
+  height: var(--card-min-height);
+  width: 100%;
   max-width: var(--card-max-width);
+  min-width: 280px;
   border: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
@@ -123,8 +124,8 @@
   position: absolute;
   top: var(--space-md);
   right: var(--space-md);
-  background-color: var(--secondary-color);
-  color: var(--primary-color);
+  background-color: var(--primary-color);
+  color: var(--text-light);
   padding: var(--space-xs) var(--space-sm);
   border-radius: var(--radius-full);
   font-size: var(--text-xs);
@@ -134,7 +135,7 @@
   box-shadow: var(--shadow-medium);
   z-index: 2;
   backdrop-filter: blur(4px);
-  background-color: rgba(196, 164, 132, 0.9);
+  border: 2px solid rgba(255, 255, 255, 0.3);
 }
 
 .newBadge,

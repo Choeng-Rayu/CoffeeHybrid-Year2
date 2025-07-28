@@ -115,6 +115,9 @@ const Home = () => {
         <h2 className={styles.sectionTitle}>OUR SPECIALTIES</h2>
         <div className={styles.categoryGrid}>
           <Link to="/menu?category=hot" className={styles.categoryCard}>
+            <div className={styles.categoryImage}>
+              <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Hot Coffee" />
+            </div>
             <div className={styles.categoryContent}>
               <div className={styles.categoryIcon}>HOT</div>
               <h3>Classic Brews</h3>
@@ -123,6 +126,9 @@ const Home = () => {
           </Link>
           
           <Link to="/menu?category=iced" className={styles.categoryCard}>
+            <div className={styles.categoryImage}>
+              <img src="https://images.unsplash.com/photo-1461023058943-07fcbe16d735?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Iced Coffee" />
+            </div>
             <div className={styles.categoryContent}>
               <div className={styles.categoryIcon}>ICE</div>
               <h3>Iced Delights</h3>
@@ -131,8 +137,11 @@ const Home = () => {
           </Link>
           
           <Link to="/menu?category=frappe" className={styles.categoryCard}>
+            <div className={styles.categoryImage}>
+              <img src="https://images.unsplash.com/photo-1572490122747-3968b75cc699?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Frappe Coffee" />
+            </div>
             <div className={styles.categoryContent}>
-              <div className={styles.categoryIcon}>BLEND</div>
+              <div className={styles.categoryIcon}>FRAPPE</div>
               <h3>Creamy Indulgence</h3>
               <p>Velvety smooth textures</p>
             </div>
