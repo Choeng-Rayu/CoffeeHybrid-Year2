@@ -1,0 +1,8 @@
+# Digital Ocean App Platform redirects for React Router
+# This ensures all routes are handled by React Router instead of the server
+
+# API routes should go to the backend service
+/api/* /api/:splat 200
+
+# All other routes should serve the React app
+/* /index.html 200

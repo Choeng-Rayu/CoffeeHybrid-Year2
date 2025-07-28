@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CoffeeHybrid - Redirecting...</title>
+    <script>
+        // Redirect to the main app with the current path
+        // This handles client-side routing for React Router
+        const currentPath = window.location.pathname + window.location.search + window.location.hash;
+        window.location.replace('/' + '?redirect=' + encodeURIComponent(currentPath));
+    </script>
+</head>
+<body>
+    <div style="text-align: center; padding: 50px; font-family: Arial, sans-serif;">
+        <h2>Redirecting...</h2>
+        <p>If you are not redirected automatically, <a href="/">click here</a>.</p>
+    </div>
+</body>
+</html>
