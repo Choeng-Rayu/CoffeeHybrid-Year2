@@ -25,9 +25,11 @@ const api = {
     return response.data;
   },
 
-  async getMenu(category = null) {
+  async getMenu(category = null, page = 1, limit = 10) {
     const url = category ? `${API_BASE_URL}/menu/category/${category}` : `${API_BASE_URL}/menu`;
-    const response = await axios.get(url);
+    const response = await axios.get(url, {
+      params: { page, limit }
+    });
     return response.data;
   },
 
@@ -136,7 +138,8 @@ bot.hears('🍵 Browse Menu', async (ctx) => {
   await ctx.reply('What type of coffee would you like to explore?', menuKeyboard);
 });
 
-bot.hears(['☕ Hot Coffee', '🧊 Iced Coffee', '🥤 Frappes', '📋 All Items'], async (ctx) => {
+// Handle category selection and pagination
+async function handleCategoryMenu(ctx, page = 1) {
   const categoryMap = {
     '☕ Hot Coffee': 'hot',
     '🧊 Iced Coffee': 'iced',
@@ -144,38 +147,66 @@ bot.hears(['☕ Hot Coffee', '🧊 Iced Coffee', '🥤 Frappes', '📋 All Items
     '📋 All Items': null
   };
 
-  const category = categoryMap[ctx.message.text];
-  console.log(`☕ User selected category: ${ctx.message.text} (${category || 'all'}) - User: ${ctx.from.first_name}`);
+  const session = getUserSession(ctx.from.id);
+  const category = categoryMap[ctx.message.text] || session.currentCategory;
+  const categoryName = ctx.message.text || session.currentCategoryName;
+
+  console.log(`☕ User selected category: ${categoryName} (${category || 'all'}) - Page: ${page} - User: ${ctx.from.first_name}`);
 
   try {
-    const menuData = await api.getMenu(category);
+    const menuData = await api.getMenu(category, page, 10);
     const products = menuData.products;
+    const pagination = menuData.pagination;
 
     if (products.length === 0) {
       await ctx.reply('No items available in this category right now.');
       return;
     }
 
-    let message = `${ctx.message.text}\n\n`;
+    let message = `${categoryName}\n\n`;
+
+    // Add pagination info
+    if (pagination) {
+      message += `📄 Page ${pagination.currentPage} of ${pagination.totalPages} (${pagination.totalProducts} items)\n\n`;
+    }
+
     const buttons = [];
+    const startIndex = ((page - 1) * 10) + 1;
 
     products.forEach((product, index) => {
-      const priceRange = product.sizes && product.sizes.length > 0 
+      const priceRange = product.sizes && product.sizes.length > 0
         ? `${formatPrice(product.basePrice + Math.min(...product.sizes.map(s => s.priceModifier)))} - ${formatPrice(product.basePrice + Math.max(...product.sizes.map(s => s.priceModifier)))}`
         : formatPrice(product.basePrice);
 
-      message += `${index + 1}. ${product.name}\n`;
+      const productNumber = startIndex + index;
+      message += `${productNumber}. ${product.name}\n`;
       message += `   ${product.description}\n`;
       message += `   Price: ${priceRange}\n\n`;
 
-      buttons.push([`${index + 1}. ${product.name}`]);
+      buttons.push([`${productNumber}. ${product.name}`]);
     });
+
+    // Add pagination buttons
+    const paginationButtons = [];
+    if (pagination && pagination.hasPrevPage) {
+      paginationButtons.push('⬅️ Previous Page');
+    }
+    if (pagination && pagination.hasNextPage) {
+      paginationButtons.push('➡️ Next Page');
+    }
+
+    if (paginationButtons.length > 0) {
+      buttons.push(paginationButtons);
+    }
 
     buttons.push(['🛒 View Cart', '🏠 Main Menu']);
 
-    // Store products in session for selection
-    const session = getUserSession(ctx.from.id);
+    // Store products and pagination info in session
     session.currentProducts = products;
+    session.currentCategory = category;
+    session.currentCategoryName = categoryName;
+    session.currentPage = page;
+    session.pagination = pagination;
 
     await ctx.reply(message, Markup.keyboard(buttons).resize());
 
@@ -183,22 +214,51 @@ bot.hears(['☕ Hot Coffee', '🧊 Iced Coffee', '🥤 Frappes', '📋 All Items
     console.error('Error fetching menu:', error);
     await ctx.reply('Sorry, I couldn\'t load the menu right now. Please try again later.');
   }
+}
+
+bot.hears(['☕ Hot Coffee', '🧊 Iced Coffee', '🥤 Frappes', '📋 All Items'], async (ctx) => {
+  await handleCategoryMenu(ctx, 1);
+});
+
+// Handle pagination navigation
+bot.hears(['⬅️ Previous Page', '➡️ Next Page'], async (ctx) => {
+  const session = getUserSession(ctx.from.id);
+
+  if (!session || !session.pagination) {
+    await ctx.reply('Please select a category first.');
+    return;
+  }
+
+  let newPage = session.currentPage;
+
+  if (ctx.message.text === '⬅️ Previous Page' && session.pagination.hasPrevPage) {
+    newPage = session.currentPage - 1;
+  } else if (ctx.message.text === '➡️ Next Page' && session.pagination.hasNextPage) {
+    newPage = session.currentPage + 1;
+  } else {
+    return; // Invalid pagination action
+  }
+
+  await handleCategoryMenu(ctx, newPage);
 });
 
 // Handle product selection
 bot.hears(/^\d+\.\s/, async (ctx) => {
   const session = getUserSession(ctx.from.id);
-  
+
   if (!session.currentProducts) {
     await ctx.reply('Please browse the menu first.');
     return;
   }
 
-  const productIndex = parseInt(ctx.message.text.split('.')[0]) - 1;
+  const productNumber = parseInt(ctx.message.text.split('.')[0]);
+  const currentPage = session.currentPage || 1;
+  const startIndex = ((currentPage - 1) * 10) + 1;
+  const productIndex = productNumber - startIndex;
   const product = session.currentProducts[productIndex];
 
-  if (!product) {
-    await ctx.reply('Invalid selection. Please choose from the menu.');
+  if (!product || productIndex < 0 || productIndex >= session.currentProducts.length) {
+    await ctx.reply('Invalid selection. Please choose from the current page menu.');
     return;
   }
 

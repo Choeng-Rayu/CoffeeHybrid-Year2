@@ -17,7 +17,7 @@ export async function handleBrowseMenu(ctx) {
   sessionService.setState(ctx.from.id, 'browsing');
 }
 
-export async function handleCategorySelection(ctx) {
+export async function handleCategorySelection(ctx, page = 1) {
   const categoryMap = {
     '☕ Hot Coffee': 'hot',
     '🧊 Iced Coffee': 'iced',
@@ -25,11 +25,12 @@ export async function handleCategorySelection(ctx) {
     '📋 All Items': null
   };
 
-  const category = categoryMap[ctx.message.text];
-  
+  const category = categoryMap[ctx.message.text] || categoryMap[ctx.session?.currentCategory];
+
   try {
-    const menuData = await apiService.getMenu(category);
+    const menuData = await apiService.getMenu(category, page, 10);
     const products = menuData.products;
+    const pagination = menuData.pagination;
 
     if (products.length === 0) {
       await ctx.reply('No items available in this category right now.');
@@ -46,18 +47,24 @@ export async function handleCategorySelection(ctx) {
       return acc;
     }, {});
 
-    let message = `${ctx.message.text}\n\n`;
+    let message = `${ctx.message.text || ctx.session?.currentCategoryName}\n\n`;
+
+    // Add pagination info
+    if (pagination) {
+      message += `📄 Page ${pagination.currentPage} of ${pagination.totalPages} (${pagination.totalProducts} items)\n\n`;
+    }
+
     const buttons = [];
-    let productIndex = 1;
+    let productIndex = ((page - 1) * 10) + 1;
 
     // Display products grouped by shop
     for (const [shopName, shopProducts] of Object.entries(productsByShop)) {
       message += `🏪 **${shopName}**\n`;
       message += '─'.repeat(20) + '\n';
-      
+
       for (const product of shopProducts) {
         const priceRange = getPriceRange(product);
-        
+
         message += `${productIndex}. ${product.name}\n`;
         message += `   ${product.description}\n`;
         message += `   Price: ${priceRange}\n`;
@@ -69,20 +76,38 @@ export async function handleCategorySelection(ctx) {
       message += '\n';
     }
 
+    // Add pagination buttons
+    const paginationButtons = [];
+    if (pagination && pagination.hasPrevPage) {
+      paginationButtons.push('⬅️ Previous Page');
+    }
+    if (pagination && pagination.hasNextPage) {
+      paginationButtons.push('➡️ Next Page');
+    }
+
+    if (paginationButtons.length > 0) {
+      buttons.push(paginationButtons);
+    }
+
     buttons.push(['🛒 View Cart', '🏠 Main Menu']);
 
-    // Store products in session for selection
+    // Store products and pagination info in session
     sessionService.updateSession(ctx.from.id, {
       currentProducts: products,
+      currentCategory: category,
+      currentCategoryName: ctx.message.text || ctx.session?.currentCategoryName,
+      currentPage: page,
+      pagination: pagination,
       state: 'selecting_product'
     });
 
     await ctx.reply(message, Markup.keyboard(buttons).resize());
 
   } catch (error) {
-    logError('CATEGORY_SELECTION', error, { 
-      userId: ctx.from.id, 
-      category: category 
+    logError('CATEGORY_SELECTION', error, {
+      userId: ctx.from.id,
+      category: category,
+      page: page
     });
     await ctx.reply('Sorry, I couldn\'t load the menu right now. Please try again later.');
   }
@@ -184,6 +209,33 @@ async function showCustomizationOptions(ctx, product) {
   ];
 
   await ctx.reply(message, Markup.keyboard(buttons).resize());
+}
+
+export async function handlePaginationNavigation(ctx) {
+  const session = sessionService.getSession(ctx.from.id);
+
+  if (!session || !session.pagination) {
+    await ctx.reply('Please select a category first.');
+    return;
+  }
+
+  let newPage = session.currentPage;
+
+  if (ctx.message.text === '⬅️ Previous Page' && session.pagination.hasPrevPage) {
+    newPage = session.currentPage - 1;
+  } else if (ctx.message.text === '➡️ Next Page' && session.pagination.hasNextPage) {
+    newPage = session.currentPage + 1;
+  } else {
+    return; // Invalid pagination action
+  }
+
+  // Update session with current category name for the next call
+  sessionService.updateSession(ctx.from.id, {
+    currentCategoryName: session.currentCategoryName
+  });
+
+  // Call category selection with new page
+  await handleCategorySelection(ctx, newPage);
 }
 
 function getPriceRange(product) {

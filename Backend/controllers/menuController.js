@@ -5,7 +5,7 @@ import { Product, User } from '../models/index.js';
  * @swagger
  * /menu:
  *   get:
- *     summary: Get all products
+ *     summary: Get all products with pagination
  *     tags: [Menu]
  *     parameters:
  *       - in: query
@@ -13,9 +13,21 @@ import { Product, User } from '../models/index.js';
  *         schema:
  *           type: string
  *         description: Filter products by category
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of products per page
  *     responses:
  *       200:
- *         description: List of products
+ *         description: Paginated list of products
  */
 
 /**
@@ -58,13 +70,35 @@ import { Product, User } from '../models/index.js';
 
 export const getAllProducts = async (req, res, next) => {
   try {
-    const { category } = req.query;
-    let where = {};
+    const { category, page = 1, limit = 10 } = req.query;
+    const offset = (page - 1) * limit;
+
+    let where = { available: true }; // Only show available products
     if (category) {
       where.category = category;
     }
-    const products = await Product.findAll({ where, order: [['category', 'ASC'], ['name', 'ASC']] });
-    res.json({ success: true, products });
+
+    const result = await Product.findAndCountAll({
+      where,
+      limit: parseInt(limit),
+      offset: parseInt(offset),
+      order: [['category', 'ASC'], ['name', 'ASC']]
+    });
+
+    const totalPages = Math.ceil(result.count / limit);
+
+    res.json({
+      success: true,
+      products: result.rows,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages,
+        totalProducts: result.count,
+        limit: parseInt(limit),
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1
+      }
+    });
   } catch (err) {
     next(err);
   }
@@ -73,11 +107,34 @@ export const getAllProducts = async (req, res, next) => {
 export const getProductsByCategory = async (req, res, next) => {
   try {
     const { category } = req.params;
-    const products = await Product.findAll({
-      where: { category: category.toLowerCase() },
+    const { page = 1, limit = 10 } = req.query;
+    const offset = (page - 1) * limit;
+
+    const result = await Product.findAndCountAll({
+      where: {
+        category: category.toLowerCase(),
+        available: true
+      },
+      limit: parseInt(limit),
+      offset: parseInt(offset),
       order: [['name', 'ASC']]
     });
-    res.json({ success: true, category, products });
+
+    const totalPages = Math.ceil(result.count / limit);
+
+    res.json({
+      success: true,
+      category,
+      products: result.rows,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages,
+        totalProducts: result.count,
+        limit: parseInt(limit),
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1
+      }
+    });
   } catch (err) {
     next(err);
   }

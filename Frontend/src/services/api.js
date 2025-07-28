@@ -143,9 +143,11 @@ export const authAPI = {
 
 // Menu API calls
 export const menuAPI = {
-  getMenu: async (category = null) => {
+  getMenu: async (category = null, page = 1, limit = 10) => {
     const url = category ? `/menu/category/${category}` : '/menu';
-    const response = await api.get(url);
+    const response = await api.get(url, {
+      params: { page, limit }
+    });
     return response.data;
   },
 

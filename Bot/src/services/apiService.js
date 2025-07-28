@@ -35,9 +35,11 @@ class ApiService {
     }
   }
 
-  async getMenu(category = null) {
+  async getMenu(category = null, page = 1, limit = 10) {
     const url = category ? `/menu/category/${category}` : '/menu';
-    const response = await this.client.get(url);
+    const response = await this.client.get(url, {
+      params: { page, limit }
+    });
     return response.data;
   }
 

@@ -13,6 +13,9 @@ const Menu = () => {
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'all');
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pagination, setPagination] = useState(null);
+  const [loadingPage, setLoadingPage] = useState(false);
 
   const categories = [
     { id: 'hot', name: 'Hot Coffee', icon: '☕', color: 'var(--cinnamon)' },
@@ -23,32 +26,45 @@ const Menu = () => {
   ];
 
   useEffect(() => {
-    fetchProducts();
+    setCurrentPage(1); // Reset to first page when category changes
+    fetchProducts(1);
   }, [selectedCategory]);
 
-  const fetchProducts = async () => {
+  const fetchProducts = async (page = currentPage) => {
     try {
-      setLoading(true);
+      if (page === 1) {
+        setLoading(true);
+      } else {
+        setLoadingPage(true);
+      }
       setError('');
-      
+
       const category = selectedCategory === 'all' ? null : selectedCategory;
-      const response = await menuAPI.getMenu(category);
+      const response = await menuAPI.getMenu(category, page, 10);
       setProducts(response.products);
+      setPagination(response.pagination);
+      setCurrentPage(page);
     } catch (error) {
       setError('We encountered an issue loading our menu. Please try again.');
       console.error('Error fetching products:', error);
     } finally {
       setLoading(false);
+      setLoadingPage(false);
     }
   };
 
   const handleCategoryChange = (categoryId) => {
     setSelectedCategory(categoryId);
+    setCurrentPage(1); // Reset to first page
     if (categoryId === 'all') {
       setSearchParams({});
     } else {
       setSearchParams({ category: categoryId });
     }
+  };
+
+  const handlePageChange = (page) => {
+    fetchProducts(page);
   };
 
   const handleProductClick = (product) => {
@@ -162,6 +178,57 @@ const Menu = () => {
             ))
           )}
         </div>
+
+        {/* Pagination Controls */}
+        {pagination && pagination.totalPages > 1 && (
+          <div className={styles.pagination}>
+            <div className={styles.paginationInfo}>
+              Showing {products.length} of {pagination.totalProducts} products
+            </div>
+            <div className={styles.paginationControls}>
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={!pagination.hasPrevPage || loadingPage}
+                className={styles.paginationBtn}
+              >
+                ← Previous
+              </button>
+
+              <div className={styles.pageNumbers}>
+                {Array.from({ length: pagination.totalPages }, (_, i) => i + 1)
+                  .filter(page =>
+                    page === 1 ||
+                    page === pagination.totalPages ||
+                    Math.abs(page - currentPage) <= 2
+                  )
+                  .map((page, index, array) => (
+                    <div key={page}>
+                      {index > 0 && array[index - 1] !== page - 1 && (
+                        <span className={styles.ellipsis}>...</span>
+                      )}
+                      <button
+                        onClick={() => handlePageChange(page)}
+                        disabled={loadingPage}
+                        className={`${styles.pageBtn} ${
+                          page === currentPage ? styles.active : ''
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    </div>
+                  ))}
+              </div>
+
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={!pagination.hasNextPage || loadingPage}
+                className={styles.paginationBtn}
+              >
+                Next →
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {showModal && selectedProduct && (
