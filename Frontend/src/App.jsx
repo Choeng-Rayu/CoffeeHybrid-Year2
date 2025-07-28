@@ -19,6 +19,7 @@ import AdminDashboard from './Components/Admin/AdminDashboard/AdminDashboard';
 import SuperAdminDashboard from './Components/SuperAdmin/SuperAdminDashboard/SuperAdminDashboard';
 import SellersManagement from './Components/SuperAdmin/SellersManagement/SellersManagement';
 import CreateSeller from './Components/SuperAdmin/CreateSeller/CreateSeller';
+import DebugEnv from './Components/Debug/DebugEnv';
 
 // Context for user authentication
 import { UserProvider } from './context/UserContext';
@@ -49,6 +50,7 @@ function App() {
                 <Route path="/super-admin" element={<SuperAdminDashboard />} />
                 <Route path="/super-admin/sellers" element={<SellersManagement />} />
                 <Route path="/super-admin/create-seller" element={<CreateSeller />} />
+                <Route path="/debug" element={<DebugEnv />} />
               </Routes>
             </main>
           </div>

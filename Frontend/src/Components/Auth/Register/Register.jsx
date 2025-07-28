@@ -64,7 +64,12 @@ const Register = () => {
     setIsGoogleLoading(true);
     setError('');
     const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-    window.location.href = `${API_BASE_URL}/auth/google`;
+    const googleOAuthUrl = `${API_BASE_URL}/auth/google`;
+
+    console.log('🔍 Google OAuth URL (Register):', googleOAuthUrl);
+    console.log('🔍 VITE_API_URL:', import.meta.env.VITE_API_URL);
+
+    window.location.href = googleOAuthUrl;
   };
 
   const handleChange = (e) => {

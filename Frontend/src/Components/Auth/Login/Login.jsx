@@ -62,9 +62,15 @@ const Login = () => {
     setIsGoogleLoading(true);
     setError('');
 
-    // Redirect to Google OAuth
+    // Redirect to Google OAuth - explicit URL for production
     const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-    window.location.href = `${API_BASE_URL}/auth/google`;
+    const googleOAuthUrl = `${API_BASE_URL}/auth/google`;
+
+    console.log('🔍 Google OAuth URL:', googleOAuthUrl);
+    console.log('🔍 VITE_API_URL:', import.meta.env.VITE_API_URL);
+    console.log('🔍 Environment:', import.meta.env.MODE);
+
+    window.location.href = googleOAuthUrl;
   };
 
   const handleChange = (e) => {
