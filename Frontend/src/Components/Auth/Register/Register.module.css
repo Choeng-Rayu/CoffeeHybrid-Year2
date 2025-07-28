@@ -135,6 +135,13 @@
   color: #6b7280;
 }
 
+.passwordHint {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 0.5rem;
+  line-height: 1.4;
+}
+
 .submitBtn {
   background: linear-gradient(90deg, #8b5a2b 0%, #d4a574 100%);
   color: white;

@@ -93,6 +93,16 @@ const Register = () => {
       setError('Username must be at least 3 characters long');
       return false;
     }
+    // Check username format (only letters, numbers, underscores)
+    if (!/^[a-zA-Z0-9_]+$/.test(formData.username)) {
+      setError('Username can only contain letters, numbers, and underscores');
+      return false;
+    }
+    // Check password complexity for production
+    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
+      setError('Password must contain at least one lowercase letter, one uppercase letter, and one number');
+      return false;
+    }
     return true;
   };
 
@@ -119,7 +129,15 @@ const Register = () => {
       login(loginResponse.user);
       navigate('/menu');
     } catch (error) {
-      setError(error.response?.data?.error || 'Registration failed. Please try again.');
+      console.error('Registration error:', error.response?.data);
+
+      // Handle validation errors from backend
+      if (error.response?.data?.errors && Array.isArray(error.response.data.errors)) {
+        const validationErrors = error.response.data.errors.map(err => err.message).join(', ');
+        setError(`Validation failed: ${validationErrors}`);
+      } else {
+        setError(error.response?.data?.error || error.response?.data?.message || 'Registration failed. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -182,6 +200,9 @@ const Register = () => {
                 <path fill="currentColor" d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z" />
               </svg>
             </div>
+            <div className={styles.passwordHint}>
+              Username must be 3-30 characters, only letters, numbers, and underscores
+            </div>
           </div>
 
           <div className={styles.inputGroup}>
@@ -238,6 +259,9 @@ const Register = () => {
                   )}
                 </svg>
               </button>
+            </div>
+            <div className={styles.passwordHint}>
+              Password must contain at least one lowercase letter, one uppercase letter, and one number
             </div>
           </div>
 
