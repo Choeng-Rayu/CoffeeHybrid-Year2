@@ -40,7 +40,7 @@ const Navbar = () => {
       <div className={styles.navContainer}>
         <Link to="/" className={styles.logo}>
           <span className={styles.logoIcon}>☕</span>
-          <span className={styles.logoText}>Hybride Coffee</span>
+          <span className={styles.logoText}>Brew Haven</span>
         </Link>
         
         <div className={`${styles.navLinks} ${menuOpen ? styles.open : ''}`}>
@@ -55,18 +55,7 @@ const Navbar = () => {
 
           {isAuthenticated ? (
             <>
-              {user.role === 'admin' ? (
-                <>
-                  <Link to="/super-admin" className={styles.navLink} onClick={() => setMenuOpen(false)}>
-                    <FaUserShield className={styles.navIcon} />
-                    <span className={styles.linkText}>Super Admin</span>
-                  </Link>
-                  <Link to="/admin/dashboard" className={styles.navLink} onClick={() => setMenuOpen(false)}>
-                    <FaUserShield className={styles.navIcon} />
-                    <span className={styles.linkText}>Seller Dashboard</span>
-                  </Link>
-                </>
-              ) : user.role === 'seller' ? (
+              {(user.role === 'seller' || user.role === 'admin') ? (
                 <Link to="/admin/dashboard" className={styles.navLink} onClick={() => setMenuOpen(false)}>
                   <FaUserShield className={styles.navIcon} />
                   <span className={styles.linkText}>Dashboard</span>

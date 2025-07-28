@@ -15,11 +15,10 @@ const Menu = () => {
   const [showModal, setShowModal] = useState(false);
 
   const categories = [
-    { id: 'all', name: 'All', icon: '☕', color: '#6F4E37' },
-    { id: 'hot', name: 'Hot Coffee', icon: '🔥', color: '#E74C3C' },
-    { id: 'iced', name: 'Iced Coffee', icon: '🧊', color: '#3498DB' },
-    { id: 'frappe', name: 'Frappes', icon: '🥤', color: '#9B59B6' },
-    { id: 'specialty', name: 'Specialty', icon: '🌟', color: '#F1C40F' }
+    { id: 'hot', name: 'Hot Coffee', icon: '☕', color: 'var(--cinnamon)' },
+    { id: 'cold', name: 'Cold Brews', icon: '🧊', color: 'var(--accent-green)' },
+    { id: 'dessert', name: 'Pastries', icon: '🍰', color: 'var(--caramel)' },
+    { id: 'specialty', name: 'Specialties', icon: '✨', color: 'var(--accent-red)' }
   ];
 
   useEffect(() => {
@@ -35,7 +34,7 @@ const Menu = () => {
       const response = await menuAPI.getMenu(category);
       setProducts(response.products);
     } catch (error) {
-      setError('Failed to load menu. Please try again.');
+      setError('We encountered an issue loading our menu. Please try again.');
       console.error('Error fetching products:', error);
     } finally {
       setLoading(false);
@@ -67,13 +66,13 @@ const Menu = () => {
         <div className={styles.loadingContainer}>
           <div className={styles.coffeeLoader}>
             <div className={styles.coffeeCup}></div>
-            <div className={styles.coffeeSteam}>
+            <div className={styles.steam}>
               <div></div>
               <div></div>
               <div></div>
             </div>
           </div>
-          <p className={styles.loadingText}>Brewing your coffee experience...</p>
+          <p className={styles.loadingText}>Brewing our fresh menu...</p>
         </div>
       </div>
     );
@@ -83,10 +82,13 @@ const Menu = () => {
     return (
       <div className={styles.menuContainer}>
         <div className={styles.errorContainer}>
-          <div className={styles.errorIcon}>☕❌</div>
-          <h3 className={styles.errorTitle}>Oops! Something went wrong</h3>
+          <div className={styles.errorIcon}>☕</div>
+          <h3 className={styles.errorTitle}>Something went wrong</h3>
           <p className={styles.errorMessage}>{error}</p>
-          <button onClick={fetchProducts} className={styles.retryButton}>
+          <button 
+            onClick={fetchProducts} 
+            className={styles.retryButton}
+          >
             Try Again
           </button>
         </div>
@@ -98,64 +100,66 @@ const Menu = () => {
     <div className={styles.menuContainer}>
       <div className={styles.heroSection}>
         <div className={styles.heroContent}>
-          <h1 className={styles.heroTitle}>Artisan Coffee Menu</h1>
+          <h1 className={styles.heroTitle}>Coffee <span>Hybrid</span></h1>
           <p className={styles.heroSubtitle}>
-            Handcrafted with passion, served with perfection
+            Where tradition meets innovation in every cup
           </p>
-          <div className={styles.scrollIndicator}>
-            <span></span>
-          </div>
         </div>
       </div>
 
       <div className={styles.contentWrapper}>
-        <div className={styles.categorySection}>
-          <h2 className={styles.sectionTitle}>Our Categories</h2>
-          <div className={styles.categoryFilter}>
-            {categories.map(category => (
-              <button
-                key={category.id}
-                onClick={() => handleCategoryChange(category.id)}
-                className={`${styles.categoryBtn} ${
-                  selectedCategory === category.id ? styles.active : ''
-                }`}
-                style={{
-                  '--category-color': category.color,
-                  '--category-hover': `${category.color}80`
-                }}
-              >
-                <span className={styles.categoryIcon}>{category.icon}</span>
-                <span className={styles.categoryName}>{category.name}</span>
-              </button>
-            ))}
-          </div>
+        <div className={styles.divider}></div>
+        
+        <h2 className={styles.sectionTitle}>Our Menu</h2>
+        <p className={styles.sectionSubtitle}>
+          Carefully crafted beverages and desserts made with premium ingredients
+        </p>
+
+        <div className={styles.categoryFilter}>
+          <button
+            onClick={() => handleCategoryChange('all')}
+            className={`${styles.categoryBtn} ${
+              selectedCategory === 'all' ? styles.active : ''
+            }`}
+          >
+            <span>☕</span>
+            <span>All Items</span>
+          </button>
+          
+          {categories.map(category => (
+            <button
+              key={category.id}
+              onClick={() => handleCategoryChange(category.id)}
+              className={`${styles.categoryBtn} ${
+                selectedCategory === category.id ? styles.active : ''
+              }`}
+              data-category={category.id}
+            >
+              <span>{category.icon}</span>
+              <span>{category.name}</span>
+            </button>
+          ))}
         </div>
 
-        <div className={styles.productsSection}>
-          <h2 className={styles.sectionTitle}>
-            {selectedCategory === 'all' ? 'All Coffee Selection' : 
-             `${categories.find(c => c.id === selectedCategory)?.name} Collection`}
-          </h2>
-          
-          <div className={styles.productsGrid}>
-            {products.length === 0 ? (
-              <div className={styles.emptyState}>
-                <div className={styles.emptyIcon}>☕</div>
-                <h3 className={styles.emptyTitle}>No products found</h3>
-                <p className={styles.emptyMessage}>
-                  We couldn't find any products in this category. Try another selection!
-                </p>
-              </div>
-            ) : (
-              products.map(product => (
-                <ProductCard
-                  key={product.id || product._id}
-                  product={product}
-                  onClick={() => handleProductClick(product)}
-                />
-              ))
-            )}
-          </div>
+        <div className={styles.productsGrid}>
+          {products.length === 0 ? (
+            <div className={styles.emptyState}>
+              <div className={styles.emptyIcon}>☕</div>
+              <h3 className={styles.emptyTitle}>No items found</h3>
+              <p className={styles.emptyMessage}>
+                We couldn't find any items in this category. Try another selection!
+              </p>
+            </div>
+          ) : (
+            products.map(product => (
+              <ProductCard
+                key={product.id || product._id}
+                product={product}
+                onClick={() => handleProductClick(product)}
+                accentColor={categories.find(c => c.id === product.category)?.color || 'var(--cinnamon)'}
+              />
+            ))
+          )}
         </div>
       </div>
 
@@ -163,6 +167,7 @@ const Menu = () => {
         <ProductModal
           product={selectedProduct}
           onClose={handleCloseModal}
+          accentColor={categories.find(c => c.id === selectedProduct.category)?.color || 'var(--cinnamon)'}
         />
       )}
     </div>
