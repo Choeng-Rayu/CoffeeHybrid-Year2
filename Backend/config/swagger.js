@@ -19,7 +19,7 @@ const options = {
                 description: 'Development server'
             },
             {
-                url: 'https://coffeehybrid.onrender.com/api',
+                url: 'https://backend-hybrid-coffee-mvs8r.ondigitalocean.app/api-docs',
                 description: 'Production server'
             }
         ],
