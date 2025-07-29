@@ -2,34 +2,23 @@
 
 A comprehensive coffee ordering system with both web application and Telegram bot interfaces, featuring QR code-based pickup verification to reduce waste from unclaimed orders.
 
-## 🌟 Features
+## 🌟 Core Concepts
 
-### Web Application
-- **User Authentication**: Register/Login system (no encryption as per requirements)
-- **Menu Browsing**: Hot, Iced, and Frappe categories
-- **Full Customization**: Size, sugar level, ice level, and premium add-ons
-- **Shopping Cart**: Add, modify, and remove items
-- **Order Management**: Place orders and view history
-- **QR Code Generation**: Unique QR codes for each order
-- **Responsive Design**: Works on desktop and mobile
+This project is a monorepo containing three distinct parts that work together: a backend API, a web-based frontend, and a Telegram bot.
 
-### Telegram Bot
-- **Menu Browsing**: Interactive menu with inline keyboards
-- **Order Customization**: Full customization flow
-- **QR Code Delivery**: Automatic QR code generation and sending
-- **Order History**: View past orders and status
-- **No Registration Required**: Uses Telegram user data
+### Backend (The Core Engine)
+The backend is the central nervous system of the application, built with **Node.js** and the **Express** framework. It functions as a RESTful API that serves both the React frontend and the Telegram bot. Its core responsibilities include:
+- **User Authentication:** Handling user registration, login, and session management.
+- **Menu Management:** Providing endpoints to fetch and manage coffee products.
+- **Order Processing:** Managing the entire order lifecycle, from creation to completion.
+- **QR Code Generation:** Creating unique QR codes for each order for verification.
+- **Database Interaction:** Interacting with a **MySQL** database (using the Sequelize ORM) to store and retrieve all application data, including users, products, and orders.
 
-### Staff Features
-- **QR Verification**: Simple interface for staff to verify pickups
-- **Order Completion**: Mark orders as completed
-- **Real-time Status**: Automatic order status updates
+### Frontend (The Web App)
+The frontend is a modern **React** single-page application that provides a visual and interactive experience for users on the web. It communicates with the backend via API calls to fetch data and perform actions. Key features include user login/registration, menu browsing, a shopping cart, order history, and a QR code display for order pickup.
 
-### No-Show Prevention
-- **Strike System**: Track user no-shows
-- **Auto-Expiry**: Orders expire after 30 minutes
-- **Account Blocking**: Temporary blocks for repeat offenders
-- **Loyalty Rewards**: Points system to encourage good behavior
+### Telegram Bot (The Conversational Interface)
+The Telegram bot offers a conversational way to order coffee. Using the **Telegraf.js** library, it guides users through the menu, customization, and ordering process using interactive keyboards. It relies on the same backend API to fetch menu data and place orders, providing a seamless experience for users on the Telegram platform.
 
 ## 🛠 Technology Stack
 
@@ -58,8 +47,8 @@ A comprehensive coffee ordering system with both web application and Telegram bo
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 18+ 
-- MongoDB (local or Atlas)
+- Node.js 18+
+- MySQL Server
 - Telegram Bot Token (for bot features)
 
 ### 1. Clone and Install
@@ -76,8 +65,14 @@ cd ../Bot && npm install
 **Backend (.env)**
 ```env
 PORT=5000
-MONGODB_URI=mongodb://localhost:27017/coffee-ordering
 NODE_ENV=development
+
+# MySQL Connection Details
+DB_HOST=localhost
+DB_USER=your_mysql_user
+DB_PASSWORD=your_mysql_password
+DB_NAME=coffee_hybrid_db
+DB_PORT=3306
 ```
 
 **Frontend (.env)**
@@ -113,7 +108,7 @@ npm run dev
 ```
 
 ### 4. Initialize Menu Data
-Visit: `http://localhost:5000/api/menu/initialize` (POST request)
+Send a POST request to `http://localhost:5000/api/menu/initialize` using a tool like Postman or curl.
 
 ### 5. Access Application
 - **Web App**: http://localhost:5173
@@ -124,9 +119,9 @@ Visit: `http://localhost:5000/api/menu/initialize` (POST request)
 
 ### 1. Create Bot
 1. Message @BotFather on Telegram
-2. Use `/newbot` command
-3. Follow instructions to get bot token
-4. Add token to `Bot/.env`
+2. Use the `/newbot` command
+3. Follow the instructions to get your bot token
+4. Add the token to `Bot/.env`
 
 ### 2. Set Commands (Optional)
 ```
@@ -155,60 +150,35 @@ help - Get help and instructions
 - `POST /api/verify-qr` - Verify QR token
 - `GET /api/orders/user/:userId` - Get user orders
 
-## 🎯 Usage Examples
-
-### Web Application Flow
-1. **Register/Login** → Create account or sign in
-2. **Browse Menu** → Select coffee category
-3. **Customize** → Choose size, sugar, ice, add-ons
-4. **Add to Cart** → Review selections
-5. **Place Order** → Get QR code
-6. **Pickup** → Show QR code to staff
-
-### Telegram Bot Flow
-1. **Start Bot** → `/start` command
-2. **Browse Menu** → Use keyboard buttons
-3. **Select Item** → Choose from numbered list
-4. **Customize** → Follow prompts for options
-5. **Place Order** → Receive QR code image
-6. **Pickup** → Show QR code
-
-### Staff Verification
-1. **Access Portal** → Visit `/verify` page
-2. **Scan/Enter QR** → Input QR token
-3. **Verify Order** → Confirm pickup
-4. **Complete** → Order marked as completed
-
 ## 🔒 Security Notes
 
-- **No Password Encryption**: As per requirements, passwords are stored in plain text
-- **JWT Tokens & cookie**: Simple session-based authentication
-- **QR Token Security**: UUID-based tokens with expiration
-- **Input Validation**: Basic validation on all inputs
+- **No Password Encryption**: As per requirements, passwords are stored in plain text.
+- **Session Management**: Simple session-based authentication using cookies.
+- **QR Token Security**: UUID-based tokens with expiration.
+- **Input Validation**: Basic validation on all inputs.
 
 ## 🐛 Troubleshooting
 
 ### Common Issues
 
 **Backend won't start:**
-- Check MongoDB connection
-- Verify port 5000 is available
-- Check environment variables
+- Check MySQL connection details in `.env`.
+- Verify the MySQL server is running.
+- Ensure port 5000 is not in use by another application.
 
 **Frontend API errors:**
-- Ensure backend is running
-- Check VITE_API_URL in .env
-- Verify CORS settings
+- Ensure the backend server is running.
+- Check the `VITE_API_URL` in the frontend `.env` file.
+- Verify there are no CORS errors in the browser console.
 
 **Bot not responding:**
-- Check bot token validity
-- Verify webhook URL (production)
-- Check API connectivity
+- Check that the bot token is correct.
+- Verify the webhook URL is correctly set for production environments.
+- Ensure the backend API is running and accessible.
 
 **QR codes not working:**
-- Ensure orders are not expired
-- Check QR token format
-- Verify verification endpoint
+- Ensure the order has not expired (default is 30 minutes).
+- Check the QR token format and the verification endpoint.
 
 ---
 
