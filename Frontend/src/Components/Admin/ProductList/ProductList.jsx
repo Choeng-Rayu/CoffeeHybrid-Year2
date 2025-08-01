@@ -4,7 +4,7 @@ import { adminAPI } from '../../../services/api';
 import ProductForm from '../ProductForm/ProductForm';
 import styles from './ProductList.module.css';
 
-const ProductList = ({ products, onProductUpdated }) => {
+const ProductList = ({ products, onProductUpdated, pagination, onPageChange, loadingProducts }) => {
   const { user } = useUser();
   const [editingProduct, setEditingProduct] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -179,6 +179,57 @@ const ProductList = ({ products, onProductUpdated }) => {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Pagination Controls */}
+      {pagination && pagination.totalPages > 1 && (
+        <div className={styles.pagination}>
+          <div className={styles.paginationInfo}>
+            Showing {products.length} of {pagination.totalProducts} products
+          </div>
+          <div className={styles.paginationControls}>
+            <button
+              onClick={() => onPageChange(pagination.currentPage - 1)}
+              disabled={!pagination.hasPrevPage || loadingProducts}
+              className={styles.paginationBtn}
+            >
+              ← Previous
+            </button>
+
+            <div className={styles.pageNumbers}>
+              {Array.from({ length: pagination.totalPages }, (_, i) => i + 1)
+                .filter(page =>
+                  page === 1 ||
+                  page === pagination.totalPages ||
+                  Math.abs(page - pagination.currentPage) <= 2
+                )
+                .map((page, index, array) => (
+                  <div key={page}>
+                    {index > 0 && array[index - 1] !== page - 1 && (
+                      <span className={styles.ellipsis}>...</span>
+                    )}
+                    <button
+                      onClick={() => onPageChange(page)}
+                      disabled={loadingProducts}
+                      className={`${styles.pageBtn} ${
+                        page === pagination.currentPage ? styles.active : ''
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  </div>
+                ))}
+            </div>
+
+            <button
+              onClick={() => onPageChange(pagination.currentPage + 1)}
+              disabled={!pagination.hasNextPage || loadingProducts}
+              className={styles.paginationBtn}
+            >
+              Next →
+            </button>
+          </div>
         </div>
       )}
     </div>

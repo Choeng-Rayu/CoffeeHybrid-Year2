@@ -19,8 +19,8 @@ export const googleAuth = (req, res, next) => {
 
   if (!isGoogleConfigured()) {
     const frontendUrl = process.env.NODE_ENV === 'production'
-      ? (process.env.FRONTEND_URL || process.env.CLIENT_URL || 'https://hybridcoffee.netlify.app')
-      : (process.env.CLIENT_URL || 'http://localhost:8081');
+      ? (process.env.FRONTEND_URL || process.env.CLIENT_URL || 'https://hybridcoffee.me')
+      : (process.env.CLIENT_URL || 'http://localhost:5173');
     console.log('❌ Google OAuth not configured, redirecting to:', `${frontendUrl}/login?error=oauth_not_configured`);
     return res.redirect(`${frontendUrl}/login?error=oauth_not_configured`);
   }
@@ -31,14 +31,14 @@ export const googleCallback = [
   (req, res, next) => {
     if (!isGoogleConfigured()) {
       const frontendUrl = process.env.NODE_ENV === 'production'
-        ? (process.env.FRONTEND_URL || process.env.CLIENT_URL || 'https://hybridcoffee.netlify.app')
-        : (process.env.CLIENT_URL || 'http://localhost:8081');
+        ? (process.env.FRONTEND_URL || process.env.CLIENT_URL || 'https://hybridcoffee-za9sy.ondigitalocean.app')
+        : (process.env.CLIENT_URL || 'http://localhost:5173');
       return res.redirect(`${frontendUrl}/login?error=oauth_not_configured`);
     }
     passport.authenticate('google', {
       failureRedirect: (process.env.NODE_ENV === 'production'
-        ? (process.env.FRONTEND_URL || process.env.CLIENT_URL || 'https://hybridcoffee.netlify.app')
-        : (process.env.CLIENT_URL || 'http://localhost:8081')) + '/login?error=oauth_failed',
+        ? (process.env.FRONTEND_URL || process.env.CLIENT_URL || 'https://hybridcoffee.me')
+        : (process.env.CLIENT_URL || 'http://localhost:5173')) + '/login?error=oauth_failed',
       session: false
     })(req, res, next);
   },
@@ -65,9 +65,9 @@ export const googleCallback = [
       };
       let frontendUrl;
       if (process.env.NODE_ENV === 'production') {
-        frontendUrl = process.env.FRONTEND_URL || process.env.CLIENT_URL || 'https://hybridcoffee.netlify.app';
+        frontendUrl = process.env.FRONTEND_URL || process.env.CLIENT_URL || 'https://hybridcoffee.me';
       } else {
-        frontendUrl = process.env.CLIENT_URL || 'http://localhost:8081';
+        frontendUrl = process.env.CLIENT_URL || 'http://localhost:5173';
       }
       const redirectUrl = `${frontendUrl}/auth/callback?token=${token}&user=${encodeURIComponent(JSON.stringify(userData))}`;
 
@@ -75,7 +75,7 @@ export const googleCallback = [
       res.redirect(redirectUrl);
     } catch (error) {
       console.error('❌ Google OAuth callback error:', error);
-      const fallbackUrl = `${process.env.CLIENT_URL || 'http://localhost:8081'}/login?error=callback_failed`;
+      const fallbackUrl = `${process.env.CLIENT_URL || 'http://localhost:5173'}/login?error=callback_failed`;
       console.log('🔄 Redirecting to error page:', fallbackUrl);
       res.redirect(fallbackUrl);
     }

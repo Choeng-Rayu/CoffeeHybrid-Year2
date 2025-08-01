@@ -244,8 +244,10 @@ export const adminAPI = {
     return response.data;
   },
 
-  getSellerProducts: async (sellerId) => {
-    const response = await api.get(`/admin/products/${sellerId}`);
+  getSellerProducts: async (sellerId, page = 1, limit = 10) => {
+    const response = await api.get(`/admin/products/${sellerId}`, {
+      params: { page, limit }
+    });
     return response.data;
   },
 

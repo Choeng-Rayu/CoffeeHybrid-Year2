@@ -136,8 +136,30 @@ export const addProduct = async (req, res, next) => {
 export const getSellerProducts = async (req, res, next) => {
   try {
     const { sellerId } = req.params;
-    const products = await Product.findAll({ where: { sellerId }, order: [['createdAt', 'DESC']] });
-    res.json({ success: true, products });
+    const { page = 1, limit = 10 } = req.query;
+    const offset = (page - 1) * limit;
+
+    const result = await Product.findAndCountAll({
+      where: { sellerId },
+      limit: parseInt(limit),
+      offset: parseInt(offset),
+      order: [['createdAt', 'DESC']]
+    });
+
+    const totalPages = Math.ceil(result.count / limit);
+
+    res.json({
+      success: true,
+      products: result.rows,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages,
+        totalProducts: result.count,
+        limit: parseInt(limit),
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1
+      }
+    });
   } catch (err) {
     next(err);
   }

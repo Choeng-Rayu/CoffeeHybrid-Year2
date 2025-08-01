@@ -17,6 +17,9 @@ const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pagination, setPagination] = useState(null);
+  const [loadingProducts, setLoadingProducts] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated || (user.role !== 'seller' && user.role !== 'admin')) {
@@ -32,9 +35,8 @@ const AdminDashboard = () => {
       setLoading(true);
       setError('');
 
-      // Fetch seller's products
-      const productsResponse = await adminAPI.getSellerProducts(user.id);
-      setProducts(productsResponse.products);
+      // Fetch seller's products with pagination
+      await fetchProducts(1);
 
       // Fetch dashboard stats
       const statsResponse = await adminAPI.getDashboardStats(user.id);
@@ -48,13 +50,35 @@ const AdminDashboard = () => {
     }
   };
 
+  const fetchProducts = async (page = currentPage) => {
+    try {
+      if (page === 1) {
+        setLoadingProducts(true);
+      }
+
+      const productsResponse = await adminAPI.getSellerProducts(user.id, page, 10);
+      setProducts(productsResponse.products);
+      setPagination(productsResponse.pagination);
+      setCurrentPage(page);
+    } catch (error) {
+      setError('Failed to load products');
+      console.error('Products error:', error);
+    } finally {
+      setLoadingProducts(false);
+    }
+  };
+
   const handleProductAdded = () => {
-    fetchDashboardData();
+    fetchProducts(1); // Reset to first page when new product is added
     setActiveTab('products');
   };
 
   const handleProductUpdated = () => {
-    fetchDashboardData();
+    fetchProducts(currentPage); // Stay on current page when product is updated
+  };
+
+  const handlePageChange = (page) => {
+    fetchProducts(page);
   };
 
   const handleExportOrders = async () => {
@@ -252,6 +276,9 @@ const AdminDashboard = () => {
           <ProductList
             products={products}
             onProductUpdated={handleProductUpdated}
+            pagination={pagination}
+            onPageChange={handlePageChange}
+            loadingProducts={loadingProducts}
           />
         )}
 
